@@ -21,9 +21,69 @@ _2020sw2compAudioProcessor::_2020sw2compAudioProcessor()
                       #endif
                        .withOutput ("Output", AudioChannelSet::stereo(), true)
                      #endif
-                       )
+                       ), parameters(*this, nullptr, Identifier("Compressor"),
+                                     {
+                                    std::make_unique<AudioParameterFloat>("inputGain",
+                                                                          "Input Gain",
+                                                                          0.f,
+                                                                          2.f,
+                                                                          1.f),
+                                    std::make_unique<AudioParameterFloat>("threhold",
+                                                                          "Threshold",
+                                                                          -20.f,
+                                                                          20.f,
+                                                                          -20.f),
+                                    std::make_unique<AudioParameterFloat>("ratio",
+                                                                           "Ratio",
+                                                                           2.f,
+                                                                           10.f,
+                                                                           4.f),
+                                    std::make_unique<AudioParameterFloat>("attack",
+                                                                          "Attack",
+                                                                          1.f,
+                                                                          30.f,
+                                                                          1.f),
+                                    std::make_unique<AudioParameterFloat>("release",
+                                                                          "Relase",
+                                                                          3.f,
+                                                                          500.f,
+                                                                          100.f),
+                                    std::make_unique<AudioParameterFloat>("saturation",
+                                                                          "Saturation",
+                                                                          0.f,
+                                                                          100.f,
+                                                                          50.f),
+                                    std::make_unique<AudioParameterFloat>("mix",
+                                                                          "Mix",
+                                                                          0.f,
+                                                                          100.f,
+                                                                          100.f),
+                                    std::make_unique<AudioParameterFloat>("outputGain",
+                                                                          "Output Gain",
+                                                                          0.f,
+                                                                          2.f,
+                                                                          1.f),
+                                    std::make_unique<AudioParameterBool>("prePostSat",
+                                                                         "Pre Post Saturation",
+                                                                         false),
+                                    std::make_unique<AudioParameterBool>("bypass",
+                                                                         "Bypass",
+                                                                         false),
+                                    })
 #endif
 {
+    mInputGainParameter = parameters.getRawParameterValue("inputGain");
+    mThresholdParameter = parameters.getRawParameterValue("threshold");
+    mRatioParameter = parameters.getRawParameterValue("ratio");
+    mAttackParameter = parameters.getRawParameterValue("attack");
+    mReleaseParameter = parameters.getRawParameterValue("release");
+    mSatParameter = parameters.getRawParameterValue("saturation");
+    mMixParameter = parameters.getRawParameterValue("mix");
+    mOutputGainParameter = parameters.getRawParameterValue("outputGain");
+    
+    mPrePostParameter = parameters.getRawParameterValue("prePostSat");
+    mBypassParameter = parameters.getRawParameterValue("bypass");
+    
 }
 
 _2020sw2compAudioProcessor::~_2020sw2compAudioProcessor()
@@ -95,8 +155,16 @@ void _2020sw2compAudioProcessor::changeProgramName (int index, const String& new
 //==============================================================================
 void _2020sw2compAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
-    // Use this method as the place to do any pre-playback
-    // initialisation that you need..
+
+    //mThreshdB = Decibels::decibelsToGain(mThresholdParameter);
+  //  mAttackT = std::exp (-2.f * float_Pi * 1000.f / *mAttackParameter/ sampleRate);
+  //  mReleaseT = std::exp (-2.f * float_Pi * 1000.f / *mReleaseParameter/ sampleRate);
+    
+    *mBypassParameter = false;
+    *mPrePostParameter = false;
+    
+   // s1 = 0.f;
+    
 }
 
 void _2020sw2compAudioProcessor::releaseResources()
@@ -144,17 +212,49 @@ void _2020sw2compAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiB
     for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
         buffer.clear (i, 0, buffer.getNumSamples());
 
-    // This is the place where you'd normally do the guts of your plugin's
-    // audio processing...
-    // Make sure to reset the state if your inner loop is processing
-    // the samples and the outer loop is handling the channels.
-    // Alternatively, you can process the samples with the channels
-    // interleaved by keeping the same state.
+    
+    
     for (int channel = 0; channel < totalNumInputChannels; ++channel)
     {
-        auto* channelData = buffer.getWritePointer (channel);
+        
+        auto* mInBuffer = buffer.getReadPointer(channel);
+        auto* mOutBuffer = buffer.getWritePointer(channel);
+        
+        for (auto sample = 0; sample < buffer.getNumSamples(); ++sample)
+        {
+            if (*mBypassParameter)
+            {
+                if (*mPrePostParameter)
+                {
+                    
+                }
+                
+                else
+                {
+                    
+                    
+                    
+                }
+               // auto mSideInput = std::abs (sample[sample]);
+                
+               // auto cte = (mSideInput >= s1 ? mAttackT : mReleaseT);
+               // auto env = mSideInput + cte * (s1 - mSideInput);
+                
+               // auto cv = (env <= mThreshdB ? 1.f : std::pow (env / mThreshdB, 1.f / *mRatioParameter - 1.f));
+                
+               // sample[sample] *= cv;
+                
+            }
+        
+            else
+            {
+                
+                mOutBuffer[sample] = *mInputGainParameter * mInBuffer[sample] * *mOutputGainParameter;
+                
+            }
+       
 
-        // ..do something to the data...
+        }
     }
 }
 
@@ -166,7 +266,7 @@ bool _2020sw2compAudioProcessor::hasEditor() const
 
 AudioProcessorEditor* _2020sw2compAudioProcessor::createEditor()
 {
-    return new _2020sw2compAudioProcessorEditor (*this);
+    return new _2020sw2compAudioProcessorEditor (*this, parameters);
 }
 
 //==============================================================================

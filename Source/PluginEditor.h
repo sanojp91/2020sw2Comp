@@ -65,7 +65,7 @@ public:
 class _2020sw2compAudioProcessorEditor  : public AudioProcessorEditor
 {
 public:
-    _2020sw2compAudioProcessorEditor (_2020sw2compAudioProcessor&);
+    _2020sw2compAudioProcessorEditor (_2020sw2compAudioProcessor&, AudioProcessorValueTreeState&);
     ~_2020sw2compAudioProcessorEditor();
 
     //==============================================================================
@@ -73,6 +73,11 @@ public:
     void resized() override;
 
 private:
+    
+    // This reference is provided as a quick way for your editor to
+    // access the processor object that created it.
+    _2020sw2compAudioProcessor& processor;
+    AudioProcessorValueTreeState& valueTreeState;
     
     OtherLookAndFeel otherLookAndFeel;
     
@@ -98,9 +103,17 @@ private:
     Label mMixLabel;
     Label mSatLabel;
     
-    // This reference is provided as a quick way for your editor to
-    // access the processor object that created it.
-    _2020sw2compAudioProcessor& processor;
+    std::unique_ptr<AudioProcessorValueTreeState::SliderAttachment> mInputAttachment;
+    std::unique_ptr<AudioProcessorValueTreeState::SliderAttachment> mThresholdAttachment;
+    std::unique_ptr<AudioProcessorValueTreeState::SliderAttachment> mAttackAttachment;
+    std::unique_ptr<AudioProcessorValueTreeState::SliderAttachment> mReleaseAttachment;
+    std::unique_ptr<AudioProcessorValueTreeState::SliderAttachment> mOutputAttachment;
+    std::unique_ptr<AudioProcessorValueTreeState::SliderAttachment> mMixAttachment;
+    std::unique_ptr<AudioProcessorValueTreeState::SliderAttachment> mSatAttachment;
+    
+    std::unique_ptr<AudioProcessorValueTreeState::ButtonAttachment> mPrePostAttachment;
+    std::unique_ptr<AudioProcessorValueTreeState::ButtonAttachment> mBypassAttachment;
+
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (_2020sw2compAudioProcessorEditor)
 };

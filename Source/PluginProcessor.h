@@ -58,6 +58,26 @@ public:
 private:
     
     
+    std::atomic<float>* mInputGainParameter = nullptr;
+    std::atomic<float>* mThresholdParameter = nullptr;
+    std::atomic<float>* mRatioParameter = nullptr;
+    std::atomic<float>* mAttackParameter = nullptr;
+    std::atomic<float>* mReleaseParameter = nullptr;
+    std::atomic<float>* mSatParameter = nullptr;
+    std::atomic<float>* mMixParameter = nullptr;
+    std::atomic<float>* mOutputGainParameter = nullptr;
+    
+    std::atomic<float>* mBypassParameter = nullptr;
+    std::atomic<float>* mPrePostParameter = nullptr;
+    
+   // float mThreshdB;
+    //float mAttackT;
+   // float mReleaseT;
+   //float s1;
+
+    
+    AudioProcessorValueTreeState parameters;
+
     
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (_2020sw2compAudioProcessor)

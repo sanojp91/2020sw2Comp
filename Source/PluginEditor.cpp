@@ -12,8 +12,8 @@
 #include "PluginEditor.h"
 
 //==============================================================================
-_2020sw2compAudioProcessorEditor::_2020sw2compAudioProcessorEditor (_2020sw2compAudioProcessor& p)
-    : AudioProcessorEditor (&p), processor (p)
+_2020sw2compAudioProcessorEditor::_2020sw2compAudioProcessorEditor (_2020sw2compAudioProcessor& p, AudioProcessorValueTreeState& vts)
+    : AudioProcessorEditor (&p), processor (p), valueTreeState(vts)
 {
     
     getLookAndFeel().setColour(Slider::thumbColourId, Colours::skyblue);
@@ -39,7 +39,7 @@ _2020sw2compAudioProcessorEditor::_2020sw2compAudioProcessorEditor (_2020sw2comp
     mInputSlider.setSkewFactorFromMidPoint(0.0f);
     addAndMakeVisible(mInputSlider);
     //ValueTreeState
-   // mInputAttachment.reset( new AudioProcessorValueTreeState::SliderAttachment(valueTreeState, "input", mInputSlider));
+    mInputAttachment.reset( new AudioProcessorValueTreeState::SliderAttachment(valueTreeState, "inputGain", mInputSlider));
     //Label
     mInputLabel.setText("Input", dontSendNotification);
     mInputLabel.setJustificationType(Justification::centredTop);
@@ -55,7 +55,7 @@ _2020sw2compAudioProcessorEditor::_2020sw2compAudioProcessorEditor (_2020sw2comp
      mThresholdSlider.setSkewFactorFromMidPoint(0.0f);
      addAndMakeVisible(mThresholdSlider);
      //ValueTreeState
-    // mThresholdAttachment.reset( new AudioProcessorValueTreeState::SliderAttachment(valueTreeState, "threshold", mThresholdSlider));
+     mThresholdAttachment.reset( new AudioProcessorValueTreeState::SliderAttachment(valueTreeState, "threshold", mThresholdSlider));
      //Label
      mThresholdLabel.setText("Threshold", dontSendNotification);
      mThresholdLabel.setJustificationType(Justification::centredTop);
@@ -70,7 +70,7 @@ _2020sw2compAudioProcessorEditor::_2020sw2compAudioProcessorEditor (_2020sw2comp
      mAttackSlider.setTextValueSuffix("MS");
      addAndMakeVisible(mAttackSlider);
      //ValueTreeState
-    // mAttackAttachment.reset( new AudioProcessorValueTreeState::SliderAttachment(valueTreeState, "attackTime", mAttackSlider));
+     mAttackAttachment.reset( new AudioProcessorValueTreeState::SliderAttachment(valueTreeState, "attack", mAttackSlider));
      //Label
      mAttackLabel.setText("Attack", dontSendNotification);
      mAttackLabel.setJustificationType(Justification::centredTop);
@@ -85,7 +85,7 @@ _2020sw2compAudioProcessorEditor::_2020sw2compAudioProcessorEditor (_2020sw2comp
      mReleaseSlider.setTextValueSuffix("MS");
      addAndMakeVisible(mReleaseSlider);
      //ValueTreeState
-    // mReleaseAttachment.reset( new AudioProcessorValueTreeState::SliderAttachment(valueTreeState, "releaseTime", mReleaseSlider));
+     mReleaseAttachment.reset( new AudioProcessorValueTreeState::SliderAttachment(valueTreeState, "release", mReleaseSlider));
      //Label
      mReleaseLabel.setText("Release", dontSendNotification);
      mReleaseLabel.setJustificationType(Justification::centredTop);
@@ -101,7 +101,7 @@ _2020sw2compAudioProcessorEditor::_2020sw2compAudioProcessorEditor (_2020sw2comp
      mOutPutSlider.setSkewFactorFromMidPoint(0.0f);
      addAndMakeVisible(mOutPutSlider);
      //ValueTreeState
-    // mOutputAttachment.reset( new AudioProcessorValueTreeState::SliderAttachment(valueTreeState, "makeupGain", mOutPutSlider));
+     mOutputAttachment.reset( new AudioProcessorValueTreeState::SliderAttachment(valueTreeState, "outputGain", mOutPutSlider));
      //Label
      mOutputLabel.setText("Makeup", dontSendNotification);
      mOutputLabel.setJustificationType(Justification::centredTop);
@@ -116,7 +116,7 @@ _2020sw2compAudioProcessorEditor::_2020sw2compAudioProcessorEditor (_2020sw2comp
      mMixSlider.setTextValueSuffix("%");
      addAndMakeVisible(mMixSlider);
      //ValueTreeState
-    // mMixAttachment.reset( new AudioProcessorValueTreeState::SliderAttachment(valueTreeState, "mix", mMixSlider));
+     mMixAttachment.reset( new AudioProcessorValueTreeState::SliderAttachment(valueTreeState, "mix", mMixSlider));
      //Label
      mMixLabel.setText("Mix", dontSendNotification);
      mMixLabel.setJustificationType(Justification::centredBottom);
@@ -131,7 +131,7 @@ _2020sw2compAudioProcessorEditor::_2020sw2compAudioProcessorEditor (_2020sw2comp
      mSatSlider.setTextValueSuffix("%");
      addAndMakeVisible(mSatSlider);
      //ValueTreeState
-    // mSatAttachment.reset( new AudioProcessorValueTreeState::SliderAttachment(valueTreeState, "sat", mSatSlider));
+     mSatAttachment.reset( new AudioProcessorValueTreeState::SliderAttachment(valueTreeState, "saturation", mSatSlider));
      //Label
      mSatLabel.setText("Saturation", dontSendNotification);
      mSatLabel.setJustificationType(Justification::centredTop);
@@ -141,11 +141,14 @@ _2020sw2compAudioProcessorEditor::_2020sw2compAudioProcessorEditor (_2020sw2comp
     mPrePostSatButton.setClickingTogglesState(true);
     mPrePostSatButton.setButtonText("Saturation Pre/Post");
     mPrePostSatButton.setState(Button::ButtonState::buttonNormal);
+    mPrePostAttachment.reset( new AudioProcessorValueTreeState::ButtonAttachment(valueTreeState, "prePostSat", mPrePostSatButton));
     addAndMakeVisible(mPrePostSatButton);
+
     
     mBypassButton.setClickingTogglesState(true);
     mBypassButton.setButtonText("Bypass");
     mBypassButton.setState(Button::ButtonState::buttonNormal);
+    mBypassAttachment.reset( new AudioProcessorValueTreeState::ButtonAttachment(valueTreeState, "bypass", mBypassButton));
     addAndMakeVisible(mBypassButton);
     
     
