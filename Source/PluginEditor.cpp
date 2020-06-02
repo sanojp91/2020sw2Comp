@@ -15,19 +15,18 @@
 _2020sw2compAudioProcessorEditor::_2020sw2compAudioProcessorEditor (_2020sw2compAudioProcessor& p, AudioProcessorValueTreeState& vts)
     : AudioProcessorEditor (&p), processor (p), valueTreeState(vts)
 {
-    
+    //set look and feel for the mix slider and buttons
     getLookAndFeel().setColour(Slider::thumbColourId, Colours::skyblue);
     getLookAndFeel().setColour(Slider::rotarySliderFillColourId, Colours::lightcyan);
     getLookAndFeel().setColour(ToggleButton::textColourId, Colours::whitesmoke);
     getLookAndFeel().setColour(ToggleButton::tickColourId, Colours::skyblue);
     
-    //set up look and feel for the sliders
+    //set up look and feel for the rest of the sliders
     mInputSlider.setLookAndFeel(&otherLookAndFeel);
     mThresholdSlider.setLookAndFeel(&otherLookAndFeel);
     mAttackSlider.setLookAndFeel(&otherLookAndFeel);
     mReleaseSlider.setLookAndFeel(&otherLookAndFeel);
     mOutPutSlider.setLookAndFeel(&otherLookAndFeel);
-   // mMixSlider.setLookAndFeel(&otherLookAndFeel);
     mSatSlider.setLookAndFeel(&otherLookAndFeel);
     
     //Input Gain Slider
@@ -138,26 +137,30 @@ _2020sw2compAudioProcessorEditor::_2020sw2compAudioProcessorEditor (_2020sw2comp
      mSatLabel.attachToComponent(&mSatSlider, false);
      addAndMakeVisible(mSatLabel);
     
+    //PrePost button
     mPrePostSatButton.setClickingTogglesState(true);
     mPrePostSatButton.setButtonText("Saturation Pre/Post");
     mPrePostSatButton.setState(Button::ButtonState::buttonNormal);
+    //valueTreeState
     mPrePostAttachment.reset( new AudioProcessorValueTreeState::ButtonAttachment(valueTreeState, "prePostSat", mPrePostSatButton));
     addAndMakeVisible(mPrePostSatButton);
 
-    
+    //bypass button
     mBypassButton.setClickingTogglesState(true);
     mBypassButton.setButtonText("Bypass");
     mBypassButton.setState(Button::ButtonState::buttonNormal);
+    //valueTreeState
     mBypassAttachment.reset( new AudioProcessorValueTreeState::ButtonAttachment(valueTreeState, "bypass", mBypassButton));
     addAndMakeVisible(mBypassButton);
     
     
-    
+    //size of the window
     setSize (600, 200);
 }
 
 _2020sw2compAudioProcessorEditor::~_2020sw2compAudioProcessorEditor()
 {
+    //deconstructor for custom lookAndFeel class to avoid error when shutting down the plugin
     mInputSlider.setLookAndFeel(nullptr);
     mThresholdSlider.setLookAndFeel(nullptr);
     mAttackSlider.setLookAndFeel(nullptr);
@@ -170,24 +173,18 @@ _2020sw2compAudioProcessorEditor::~_2020sw2compAudioProcessorEditor()
 //==============================================================================
 void _2020sw2compAudioProcessorEditor::paint (Graphics& g)
 {
-    // (Our component is opaque, so we must completely fill the background with a solid colour)
+    // solid black background colour
     g.fillAll (Colours::black);
 
-   // g.setColour (Colours::white);
-  //  g.setFont (15.0f);
-  //  g.drawFittedText ("Compressor", getLocalBounds(), Justification::centred, 1);
 }
 
 void _2020sw2compAudioProcessorEditor::resized()
 {
-    
+    //get local bounds for the window
     auto area = getLocalBounds();
     
-    //auto mixHeight = 10;
-   // auto mixWidth = 100;
-   // mMixSlider.setBounds (area.removeFromTop(mixHeight));
-   // mMixSlider.setBounds (area.removeFromBottom(mixWidth));
     
+    //positioning for the sliders
     auto sliderHeight = 100;
     auto sliderWidth = 100;
     mInputSlider.setBounds (area.removeFromTop(sliderHeight));
@@ -198,20 +195,23 @@ void _2020sw2compAudioProcessorEditor::resized()
     mSatSlider.setBounds (area.removeFromLeft(sliderHeight));
     mOutPutSlider.setBounds (area.removeFromLeft(sliderHeight));
     
+    //positioning for the mix slider, needs to be tweaked
     mMixSlider.setBounds(getWidth() - 100, getHeight() - 180, 80, 80);
+    
+    //positioning for the buttons, also needs to be tweaked
     mBypassButton.setBounds(getWidth() - 590, getHeight() - 195, 80, 50);
     mPrePostSatButton.setBounds(getWidth() - 500, getHeight() - 195, 80, 50);
 
+    //some attempts and positioning the mix slider and buttons more cleanly, but it fucks with me
+     //auto mixHeight = 10;
+    // auto mixWidth = 100;
+    // mMixSlider.setBounds (area.removeFromTop(mixHeight));
+    // mMixSlider.setBounds (area.removeFromBottom(mixWidth));
   // auto buttonHeight = 5;
    //auto buttonWidth = 10;
    // mPrePostSatButton.setBounds (area.removeFromTop(buttonHeight));
    // mPrePostSatButton.setBounds (area.removeFromLeft(buttonWidth));
   //  mBypassButton.setBounds (area.removeFromLeft(buttonWidth));
-    
-    
-   //setSize (600, 200);
-   // mInputSlider.setBounds(getWidth() / 4 - 200, getHeight() / 4, 80, 80);
-   // mThresholdSlider.setBounds(getWidth() / 2, getHeight() /4, 150, 150);
-   // mAttackSlider.setBounds(getWidth() / 6, getHeight() / 4, 150, 150);
+
     
 }

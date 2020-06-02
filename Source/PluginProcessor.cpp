@@ -156,14 +156,10 @@ void _2020sw2compAudioProcessor::changeProgramName (int index, const String& new
 void _2020sw2compAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
 
-    //mThreshdB = Decibels::decibelsToGain(mThresholdParameter);
-  //  mAttackT = std::exp (-2.f * float_Pi * 1000.f / *mAttackParameter/ sampleRate);
-  //  mReleaseT = std::exp (-2.f * float_Pi * 1000.f / *mReleaseParameter/ sampleRate);
-    
+    //setting both buttons to false
     *mBypassParameter = false;
     *mPrePostParameter = false;
-    
-   // s1 = 0.f;
+
     
 }
 
@@ -216,40 +212,36 @@ void _2020sw2compAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiB
     
     for (int channel = 0; channel < totalNumInputChannels; ++channel)
     {
-        
+        //create an in- and outbuffer
         auto* mInBuffer = buffer.getReadPointer(channel);
         auto* mOutBuffer = buffer.getWritePointer(channel);
         
         for (auto sample = 0; sample < buffer.getNumSamples(); ++sample)
         {
-            if (*mBypassParameter)
+            if (*mBypassParameter) //if bypass is enabled (true)
             {
-                if (*mPrePostParameter)
-                {
-                    
-                }
-                
-                else
-                {
-                    
-                    
-                    
-                }
-               // auto mSideInput = std::abs (sample[sample]);
-                
-               // auto cte = (mSideInput >= s1 ? mAttackT : mReleaseT);
-               // auto env = mSideInput + cte * (s1 - mSideInput);
-                
-               // auto cv = (env <= mThreshdB ? 1.f : std::pow (env / mThreshdB, 1.f / *mRatioParameter - 1.f));
-                
-               // sample[sample] *= cv;
+             
+             // do nothing to the signal
                 
             }
         
-            else
+            else //if bypass is disabled (false)
             {
                 
-                mOutBuffer[sample] = *mInputGainParameter * mInBuffer[sample] * *mOutputGainParameter;
+                  if (*mPrePostParameter) //if prepost it true, in this loop the saturation/distortion is before compression
+                              {
+                                  
+                                  mOutBuffer[sample] = *mInputGainParameter * mInBuffer[sample] * *mOutputGainParameter;
+                                  
+                              }
+                              
+                              else //in this loop the saturation/distortion is after the compression
+                              {
+                                  
+                                  mOutBuffer[sample] = *mInputGainParameter * mInBuffer[sample] * *mOutputGainParameter;
+                                  
+                              }
+                             
                 
             }
        
@@ -272,15 +264,25 @@ AudioProcessorEditor* _2020sw2compAudioProcessor::createEditor()
 //==============================================================================
 void _2020sw2compAudioProcessor::getStateInformation (MemoryBlock& destData)
 {
-    // You should use this method to store your parameters in the memory block.
-    // You could do that either as raw data, or use the XML or ValueTree classes
-    // as intermediaries to make it easy to save and load complex data.
+    auto state = parameters.copyState();
+    std::unique_ptr<XmlElement> xml (state.createXml()); //store the parameters state
+    copyXmlToBinary(*xml, destData); //saves the pointer xml to have it saved when the plugin is closed
 }
 
 void _2020sw2compAudioProcessor::setStateInformation (const void* data, int sizeInBytes)
 {
-    // You should use this method to restore your parameters from this memory block,
-    // whose contents will have been created by the getStateInformation() call.
+    std::unique_ptr<XmlElement> xmlState (getXmlFromBinary(data, sizeInBytes)); //get the xml data from the memory
+    if (xmlState.get() != nullptr)
+    {
+        
+        if (xmlState -> hasTagName(parameters.state.getType()))
+        {
+            
+            parameters.replaceState(ValueTree::fromXml(*xmlState)); //replace all of the data in the parameters with the saved data
+            
+        }
+        
+    }
 }
 
 //==============================================================================

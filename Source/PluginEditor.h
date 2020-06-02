@@ -17,7 +17,7 @@
 /**
 */
 
-class OtherLookAndFeel : public LookAndFeel_V4
+class OtherLookAndFeel : public LookAndFeel_V4 //custom look and feel class for the sliders
 {
     
 public:
@@ -79,14 +79,17 @@ private:
     _2020sw2compAudioProcessor& processor;
     AudioProcessorValueTreeState& valueTreeState;
     
+    //declaring otherlookand feel for the rotary sliders
     OtherLookAndFeel otherLookAndFeel;
     
+    //declaring togglebuttons and labels for them
     ToggleButton mBypassButton;
     ToggleButton mPrePostSatButton;
     
     Label mBypassLabel;
     Label mPrePostLabel;
     
+    //declaring sliders and labels for them
     Slider mInputSlider;
     Slider mThresholdSlider;
     Slider mAttackSlider;
@@ -103,6 +106,7 @@ private:
     Label mMixLabel;
     Label mSatLabel;
     
+    //slider and button attachments
     std::unique_ptr<AudioProcessorValueTreeState::SliderAttachment> mInputAttachment;
     std::unique_ptr<AudioProcessorValueTreeState::SliderAttachment> mThresholdAttachment;
     std::unique_ptr<AudioProcessorValueTreeState::SliderAttachment> mAttackAttachment;
