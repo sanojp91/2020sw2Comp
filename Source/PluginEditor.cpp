@@ -26,6 +26,7 @@ _2020sw2compAudioProcessorEditor::_2020sw2compAudioProcessorEditor (_2020sw2comp
     mThresholdSlider.setLookAndFeel(&otherLookAndFeel);
     mAttackSlider.setLookAndFeel(&otherLookAndFeel);
     mReleaseSlider.setLookAndFeel(&otherLookAndFeel);
+    mRatioSlider.setLookAndFeel(&otherLookAndFeel);
     mOutPutSlider.setLookAndFeel(&otherLookAndFeel);
     mSatSlider.setLookAndFeel(&otherLookAndFeel);
     
@@ -48,10 +49,10 @@ _2020sw2compAudioProcessorEditor::_2020sw2compAudioProcessorEditor (_2020sw2comp
     //Threshold Slider
      mThresholdSlider.setSliderStyle(Slider::SliderStyle::RotaryVerticalDrag);
      mThresholdSlider.setTextBoxStyle(Slider::TextBoxBelow, true, 80, 30);
-     mThresholdSlider.setRange(-30.0f, 20.0f, 0.1f);
-     mThresholdSlider.setValue(0.0f);
-     mThresholdSlider.setTextValueSuffix("dB");
-     mThresholdSlider.setSkewFactorFromMidPoint(0.0f);
+     mThresholdSlider.setRange(0.0f, 100.0f, 0.1f);
+     mThresholdSlider.setValue(50.0f);
+     mThresholdSlider.setTextValueSuffix("%");
+     mThresholdSlider.setSkewFactorFromMidPoint(50.0f);
      addAndMakeVisible(mThresholdSlider);
      //ValueTreeState
      mThresholdAttachment.reset( new AudioProcessorValueTreeState::SliderAttachment(valueTreeState, "threshold", mThresholdSlider));
@@ -91,6 +92,21 @@ _2020sw2compAudioProcessorEditor::_2020sw2compAudioProcessorEditor (_2020sw2comp
      mReleaseLabel.attachToComponent(&mReleaseSlider, false);
      addAndMakeVisible(mReleaseLabel);
     
+    //Ratio Slider
+    mRatioSlider.setSliderStyle(Slider::SliderStyle::RotaryVerticalDrag);
+    mRatioSlider.setTextBoxStyle(Slider::TextBoxBelow, true, 80, 30);
+    mRatioSlider.setRange(0.0f, 100.f, 1.f);
+    mRatioSlider.setValue(50.f);
+    mRatioSlider.setTextValueSuffix("%");
+    addAndMakeVisible(mRatioSlider);
+    //ValuteTreeState
+    mRatioAttachment.reset( new AudioProcessorValueTreeState::SliderAttachment(valueTreeState, "ratio", mRatioSlider));
+    //Label
+    mRatioLabel.setText("Ratio", dontSendNotification);
+    mRatioLabel.setJustificationType(Justification::centredTop);
+    mRatioLabel.attachToComponent(&mRatioSlider, false);
+    addAndMakeVisible(mRatioLabel);
+    
     //Output Gain Slider
      mOutPutSlider.setSliderStyle(Slider::SliderStyle::RotaryVerticalDrag);
      mOutPutSlider.setTextBoxStyle(Slider::TextBoxBelow, true, 80, 30);
@@ -109,8 +125,8 @@ _2020sw2compAudioProcessorEditor::_2020sw2compAudioProcessorEditor (_2020sw2comp
     
     //Mix Slider
      mMixSlider.setSliderStyle(Slider::SliderStyle::RotaryVerticalDrag);
-     mMixSlider.setTextBoxStyle(Slider::TextBoxLeft, true, 40, 15);
-     mMixSlider.setRange(0.0f, 100.0f, 1.0f);
+     mMixSlider.setTextBoxStyle(Slider::TextBoxRight, true, 50, 15);
+     mMixSlider.setRange(0.0f, 100.0f, 1.f);
      mMixSlider.setValue(0.0f);
      mMixSlider.setTextValueSuffix("%");
      addAndMakeVisible(mMixSlider);
@@ -118,8 +134,8 @@ _2020sw2compAudioProcessorEditor::_2020sw2compAudioProcessorEditor (_2020sw2comp
      mMixAttachment.reset( new AudioProcessorValueTreeState::SliderAttachment(valueTreeState, "mix", mMixSlider));
      //Label
      mMixLabel.setText("Mix", dontSendNotification);
-     mMixLabel.setJustificationType(Justification::centredBottom);
-     mMixLabel.attachToComponent(&mMixSlider, false);
+     mMixLabel.setJustificationType(Justification::centredRight);
+     mMixLabel.attachToComponent(&mMixSlider, true);
      addAndMakeVisible(mMixLabel);
     
     //Saturation Slider
@@ -165,6 +181,7 @@ _2020sw2compAudioProcessorEditor::~_2020sw2compAudioProcessorEditor()
     mThresholdSlider.setLookAndFeel(nullptr);
     mAttackSlider.setLookAndFeel(nullptr);
     mReleaseSlider.setLookAndFeel(nullptr);
+    mRatioSlider.setLookAndFeel(nullptr);
     mOutPutSlider.setLookAndFeel(nullptr);
     mMixSlider.setLookAndFeel(nullptr);
     mSatSlider.setLookAndFeel(nullptr);
@@ -185,18 +202,19 @@ void _2020sw2compAudioProcessorEditor::resized()
     
     
     //positioning for the sliders
-    auto sliderHeight = 100;
-    auto sliderWidth = 100;
+    auto sliderHeight = 85;
+    auto sliderWidth = 85;
     mInputSlider.setBounds (area.removeFromTop(sliderHeight));
     mInputSlider.setBounds (area. removeFromLeft(sliderWidth));
     mThresholdSlider.setBounds (area.removeFromLeft(sliderWidth));
     mAttackSlider.setBounds (area.removeFromLeft(sliderHeight));
     mReleaseSlider.setBounds (area.removeFromLeft(sliderHeight));
+    mRatioSlider.setBounds (area.removeFromLeft(sliderHeight));
     mSatSlider.setBounds (area.removeFromLeft(sliderHeight));
     mOutPutSlider.setBounds (area.removeFromLeft(sliderHeight));
     
     //positioning for the mix slider, needs to be tweaked
-    mMixSlider.setBounds(getWidth() - 100, getHeight() - 180, 80, 80);
+    mMixSlider.setBounds(getWidth() - 100, getHeight() - 220, 100, 100);
     
     //positioning for the buttons, also needs to be tweaked
     mBypassButton.setBounds(getWidth() - 590, getHeight() - 195, 80, 50);

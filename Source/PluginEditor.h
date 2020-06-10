@@ -94,6 +94,7 @@ private:
     Slider mThresholdSlider;
     Slider mAttackSlider;
     Slider mReleaseSlider;
+    Slider mRatioSlider;
     Slider mOutPutSlider;
     Slider mMixSlider;
     Slider mSatSlider;
@@ -102,6 +103,7 @@ private:
     Label mThresholdLabel;
     Label mAttackLabel;
     Label mReleaseLabel;
+    Label mRatioLabel;
     Label mOutputLabel;
     Label mMixLabel;
     Label mSatLabel;
@@ -111,6 +113,7 @@ private:
     std::unique_ptr<AudioProcessorValueTreeState::SliderAttachment> mThresholdAttachment;
     std::unique_ptr<AudioProcessorValueTreeState::SliderAttachment> mAttackAttachment;
     std::unique_ptr<AudioProcessorValueTreeState::SliderAttachment> mReleaseAttachment;
+    std::unique_ptr<AudioProcessorValueTreeState::SliderAttachment> mRatioAttachment;
     std::unique_ptr<AudioProcessorValueTreeState::SliderAttachment> mOutputAttachment;
     std::unique_ptr<AudioProcessorValueTreeState::SliderAttachment> mMixAttachment;
     std::unique_ptr<AudioProcessorValueTreeState::SliderAttachment> mSatAttachment;

@@ -35,9 +35,9 @@ _2020sw2compAudioProcessor::_2020sw2compAudioProcessor()
                                                                           0.5f),
                                     std::make_unique<AudioParameterFloat>("ratio",
                                                                            "Ratio",
-                                                                           2.f,
-                                                                           10.f,
-                                                                           4.f),
+                                                                           0.f,
+                                                                           100.f,
+                                                                           50.f),
                                     std::make_unique<AudioParameterFloat>("attack",
                                                                           "Attack",
                                                                           0.1f,
@@ -158,7 +158,7 @@ void _2020sw2compAudioProcessor::prepareToPlay (double sampleRate, int samplesPe
 
     currentSampleRate = sampleRate; //setting the sample rate to currentSampleRate
     
-    mSlope = 0.5f; //setting the slope to 50%
+   // mSlope = 0.5f; //setting the slope to 50%
     mLookahead = 0.003f; //setting lookahead to 3 ms
     mWindowTime = 0.001f; //setting window size to 1ms
     
@@ -295,7 +295,7 @@ void _2020sw2compAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiB
                                   //"(std::__1::atomic<float> *) mThresholdParameter = <extracting data from value failed>"
                                   if (mEnv > *mThresholdParameter)
                                   {
-                                  gain = gain - (mEnv - *mThresholdParameter) * mSlope;
+                                  gain = gain - (mEnv - *mThresholdParameter) * *mRatioParameter;
                                   }
                                   
                                   mOutBuffer[sample] = *mInputGainParameter * mInBuffer[sample] * gain * *mOutputGainParameter;
