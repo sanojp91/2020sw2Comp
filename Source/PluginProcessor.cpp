@@ -23,16 +23,16 @@ _2020sw2compAudioProcessor::_2020sw2compAudioProcessor()
                      #endif
                        ), parameters(*this, nullptr, Identifier("Compressor"),
                                      {
-                                    std::make_unique<AudioParameterFloat>("inputGain",
-                                                                          "Input Gain",
-                                                                          0.f,
-                                                                          2.f,
-                                                                          1.f),
+                                    std::make_unique<AudioParameterFloat>("inputGain", //ID
+                                                                          "Input Gain", //Name
+                                                                          0.f, //Minimum
+                                                                          2.f, //Maximum
+                                                                          1.f), //Default Value
                                     std::make_unique<AudioParameterFloat>("threhold",
                                                                           "Threshold",
-                                                                          -20.f,
-                                                                          20.f,
-                                                                          -20.f),
+                                                                          0.f,
+                                                                          1.f,
+                                                                          0.5f),
                                     std::make_unique<AudioParameterFloat>("ratio",
                                                                            "Ratio",
                                                                            2.f,
@@ -40,14 +40,14 @@ _2020sw2compAudioProcessor::_2020sw2compAudioProcessor()
                                                                            4.f),
                                     std::make_unique<AudioParameterFloat>("attack",
                                                                           "Attack",
-                                                                          1.f,
-                                                                          30.f,
-                                                                          1.f),
+                                                                          0.1f,
+                                                                          300.f,
+                                                                          0.1f),
                                     std::make_unique<AudioParameterFloat>("release",
                                                                           "Relase",
                                                                           3.f,
                                                                           500.f,
-                                                                          100.f),
+                                                                          300.f),
                                     std::make_unique<AudioParameterFloat>("saturation",
                                                                           "Saturation",
                                                                           0.f,
@@ -63,9 +63,9 @@ _2020sw2compAudioProcessor::_2020sw2compAudioProcessor()
                                                                           0.f,
                                                                           2.f,
                                                                           1.f),
-                                    std::make_unique<AudioParameterBool>("prePostSat",
-                                                                         "Pre Post Saturation",
-                                                                         false),
+                                    std::make_unique<AudioParameterBool>("prePostSat", //ID
+                                                                         "Pre Post Saturation", //Name
+                                                                         false), //Default
                                     std::make_unique<AudioParameterBool>("bypass",
                                                                          "Bypass",
                                                                          false),
@@ -156,6 +156,12 @@ void _2020sw2compAudioProcessor::changeProgramName (int index, const String& new
 void _2020sw2compAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
 
+    currentSampleRate = sampleRate; //setting the sample rate to currentSampleRate
+    
+    mSlope = 0.5f; //setting the slope to 50%
+    mLookahead = 0.003f; //setting lookahead to 3 ms
+    mWindowTime = 0.001f; //setting window size to 1ms
+    
     //setting both buttons to false
     *mBypassParameter = false;
     *mPrePostParameter = false;
@@ -216,8 +222,19 @@ void _2020sw2compAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiB
         auto* mInBuffer = buffer.getReadPointer(channel);
         auto* mOutBuffer = buffer.getWritePointer(channel);
         
+     
+        
         for (auto sample = 0; sample < buffer.getNumSamples(); ++sample)
         {
+            
+            //creating different variables for the compressor
+            // envelope
+            double  mEnv = 0.0f;
+            // sample offset to lookahead window start
+            int mWindowSampleOffset = (int) (currentSampleRate * mLookahead);
+            // samples count in lookahead window
+            int     mLookaheadSamples = (int) (currentSampleRate * mWindowTime);
+            
             if (*mBypassParameter) //if bypass is enabled (true)
             {
              
@@ -231,7 +248,57 @@ void _2020sw2compAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiB
                   if (*mPrePostParameter) //if prepost it true, in this loop the saturation/distortion is before compression
                               {
                                   
-                                  mOutBuffer[sample] = *mInputGainParameter * mInBuffer[sample] * *mOutputGainParameter;
+                                  
+                                  // attack and release "per sample decay"
+                                  double  mAttack = (*mAttackParameter == 0.0) ? (0.0) : exp (-1.0 / (currentSampleRate * *mAttackParameter));
+                                  
+                                  double  mRelease = (*mReleaseParameter == 0.0) ? (0.0) : exp (-1.0 / (currentSampleRate * *mReleaseParameter));
+                                  
+                                  //compute RMS
+                                  double  mRms = 0;
+                                  
+                                  // for each sample in lookahead window
+                                  for (int i = 0; i < mLookaheadSamples; ++i)
+                                  {
+                                      int     mLki = sample + i + mWindowSampleOffset;
+                                      double  mSmp;
+                                      // if we in bounds of signal?
+                                      // if so, convert to mono
+                                      if (mLki < currentSampleRate)
+                                      {
+                                          mSmp = 0.5 * mInBuffer [mLki];
+                                          //mSmp = 0.5 * inBuffer [mLki] [0] + 0.5 * inBuffer [mLki] [1];
+                                      }
+                                      else
+                                      {
+                                          
+                                           mSmp = 0.0;      // if we out of bounds we just get zero in smp
+                                          
+                                      }
+                                      
+                                      mRms += mSmp * mSmp;  // square em
+                                  }
+                                  
+                                  double  mRmsVal = sqrt (mRms / mLookaheadSamples);   // root-mean-square
+                                  
+                                  // dynamic selection: attack or release?
+                                  double  mTheta = mRmsVal > mEnv ? mAttack : mRelease;
+                                  
+                                  // smoothing with capacitor, envelope extraction
+                                  // here be aware of pIV denormal numbers glitch
+                                  mEnv = (1.0 - mTheta) * mRmsVal + mTheta * mEnv;
+                                  
+                                  // the hard knee 1:N compressor
+                                  double  gain = 1.0;
+                                  
+                                  //this if loop crashes the plugin upon initilazation with error code "EXC_BAD_ACCESS (code=1, address=0x0)", I'm not sure why, possibly the mEnv & mThreshold both holds a value of 0?
+                                  //"(std::__1::atomic<float> *) mThresholdParameter = <extracting data from value failed>"
+                                  if (mEnv > *mThresholdParameter)
+                                  {
+                                  gain = gain - (mEnv - *mThresholdParameter) * mSlope;
+                                  }
+                                  
+                                  mOutBuffer[sample] = *mInputGainParameter * mInBuffer[sample] * gain * *mOutputGainParameter;
                                   
                               }
                               
