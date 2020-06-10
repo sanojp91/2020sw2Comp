@@ -28,7 +28,7 @@ _2020sw2compAudioProcessor::_2020sw2compAudioProcessor()
                                                                           0.f, //Minimum
                                                                           2.f, //Maximum
                                                                           1.f), //Default Value
-                                    std::make_unique<AudioParameterFloat>("threhold",
+                                    std::make_unique<AudioParameterFloat>("threshold",
                                                                           "Threshold",
                                                                           0.f,
                                                                           1.f,
