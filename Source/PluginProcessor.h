@@ -61,7 +61,7 @@ private:
     double currentSampleRate;
     double mLookahead; //lookahead in ms
     double mWindowTime; //window time in ms
-   // double mSlope; //slope angle in percent
+   // double mSlope; //slope angle in percent using the ratio parameter instead
     
     // would it be necessary to have the variables above as std::atomic?
    /* std::atomic<int>* currentSampleRate = nullptr;

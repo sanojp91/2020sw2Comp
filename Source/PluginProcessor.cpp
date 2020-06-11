@@ -31,8 +31,8 @@ _2020sw2compAudioProcessor::_2020sw2compAudioProcessor()
                                     std::make_unique<AudioParameterFloat>("threshold",
                                                                           "Threshold",
                                                                           0.f,
-                                                                          1.f,
-                                                                          0.5f),
+                                                                          100.f,
+                                                                          50.f),
                                     std::make_unique<AudioParameterFloat>("ratio",
                                                                            "Ratio",
                                                                            0.f,
@@ -158,8 +158,8 @@ void _2020sw2compAudioProcessor::prepareToPlay (double sampleRate, int samplesPe
 
     currentSampleRate = sampleRate; //setting the sample rate to currentSampleRate
     
-   // mSlope = 0.5f; //setting the slope to 50%
-    mLookahead = 0.003f; //setting lookahead to 3 ms
+   // mSlope = 0.5f; //setting the slope to 50% using the ratio paramter instead
+    mLookahead = 0.003f; //setting lookahead to 30 ms
     mWindowTime = 0.001f; //setting window size to 1ms
     
     //setting both buttons to false
@@ -227,13 +227,7 @@ void _2020sw2compAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiB
         for (auto sample = 0; sample < buffer.getNumSamples(); ++sample)
         {
             
-            //creating different variables for the compressor
-            // envelope
-            double  mEnv = 0.0f;
-            // sample offset to lookahead window start
-            int mWindowSampleOffset = (int) (currentSampleRate * mLookahead);
-            // samples count in lookahead window
-            int     mLookaheadSamples = (int) (currentSampleRate * mWindowTime);
+
             
             if (*mBypassParameter) //if bypass is enabled (true)
             {
@@ -244,71 +238,81 @@ void _2020sw2compAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiB
         
             else //if bypass is disabled (false)
             {
+                //creating different variables for the compressor
+                // envelope
+                double  mEnv = 0.0f;
+                // sample offset to lookahead window start
+                int mWindowSampleOffset = (int) (currentSampleRate * mLookahead);
+                // samples count in lookahead window
+                int     mLookaheadSamples = (int) (currentSampleRate * mWindowTime);
+                
+                
+                //mAttack & mRelease only gets values from approximately a quarter of mAttackParameter & mReleaseParameter's value range, mAttack & mRelease values goes from 0.999992 - 1
+                // attack and release "per sample decay"
+                 double mAttack = (*mAttackParameter == 0.0f) ? (0.0f) : exp (-1.0f / (currentSampleRate * *mAttackParameter));
+                 
+                 double  mRelease = (*mReleaseParameter == 0.0f) ? (0.0f) : exp (-1.0f / (currentSampleRate * *mReleaseParameter));
+                 
+                 //compute RMS
+                 double  mRms = 0.f;
+                 
+                 // for each sample in lookahead window (44 for 44.1kHz sample rate)
+                 for (int i = 0; i < mLookaheadSamples; ++i)
+                 {
+                     int     mLki = sample + i + mWindowSampleOffset; //could be wrong equation? mLki values range from 250-650, should be more if "sample" ranges from 0-44100?
+                     double  mSmp;
+                     
+                     // if we in bounds of signal?
+                     // if so, convert to mono
+                     if (mLki < currentSampleRate)
+                     {
+                         mSmp = 0.5f * mInBuffer [mLki];
+                         //mSmp = 0.5 * inBuffer [mLki] [0] + 0.5 * inBuffer [mLki] [1];
+                     }
+                     else
+                     {
+                         
+                          mSmp = 0.0f;      // if we out of bounds we just get zero in smp
+                         
+                     }
+                     
+                     mRms += mSmp * mSmp;  // square em
+                     
+                 }
+                 
+                 double  mRmsVal = sqrt (mRms / mLookaheadSamples);   // root-mean-square
+                 
+                 // dynamic selection: attack or release?
+                 double  mTheta = mRmsVal > mEnv ? mAttack : mRelease;
+                 
+                 // smoothing with capacitor, envelope extraction
+                 // here be aware of pIV denormal numbers glitch
+                 mEnv = (1.0f - mTheta) * mRmsVal + mTheta * mEnv;
+                 
+                 // the hard knee 1:N compressor
+                 double  mGain = 1.0f;
+                 
+                
+                 if (mEnv > *mThresholdParameter)
+                 {
+                 mGain = mGain - (mEnv - *mThresholdParameter) * *mRatioParameter;
+                 }
+                
                 
                   if (*mPrePostParameter) //if prepost it true, in this loop the saturation/distortion is before compression
                               {
                                   
                                   
-                                  // attack and release "per sample decay"
-                                  double  mAttack = (*mAttackParameter == 0.0) ? (0.0) : exp (-1.0 / (currentSampleRate * *mAttackParameter));
-                                  
-                                  double  mRelease = (*mReleaseParameter == 0.0) ? (0.0) : exp (-1.0 / (currentSampleRate * *mReleaseParameter));
-                                  
-                                  //compute RMS
-                                  double  mRms = 0;
-                                  
-                                  // for each sample in lookahead window
-                                  for (int i = 0; i < mLookaheadSamples; ++i)
-                                  {
-                                      int     mLki = sample + i + mWindowSampleOffset;
-                                      double  mSmp;
-                                      // if we in bounds of signal?
-                                      // if so, convert to mono
-                                      if (mLki < currentSampleRate)
-                                      {
-                                          mSmp = 0.5 * mInBuffer [mLki];
-                                          //mSmp = 0.5 * inBuffer [mLki] [0] + 0.5 * inBuffer [mLki] [1];
-                                      }
-                                      else
-                                      {
-                                          
-                                           mSmp = 0.0;      // if we out of bounds we just get zero in smp
-                                          
-                                      }
-                                      
-                                      mRms += mSmp * mSmp;  // square em
-                                  }
-                                  
-                                  double  mRmsVal = sqrt (mRms / mLookaheadSamples);   // root-mean-square
-                                  
-                                  // dynamic selection: attack or release?
-                                  double  mTheta = mRmsVal > mEnv ? mAttack : mRelease;
-                                  
-                                  // smoothing with capacitor, envelope extraction
-                                  // here be aware of pIV denormal numbers glitch
-                                  mEnv = (1.0 - mTheta) * mRmsVal + mTheta * mEnv;
-                                  
-                                  // the hard knee 1:N compressor
-                                  double  gain = 1.0;
-                                  
-                                  //this if loop crashes the plugin upon initilazation with error code "EXC_BAD_ACCESS (code=1, address=0x0)", I'm not sure why, possibly the mEnv & mThreshold both holds a value of 0?
-                                  //"(std::__1::atomic<float> *) mThresholdParameter = <extracting data from value failed>"
-                                  if (mEnv > *mThresholdParameter)
-                                  {
-                                  gain = gain - (mEnv - *mThresholdParameter) * *mRatioParameter;
-                                  }
-                                  
-                                  mOutBuffer[sample] = *mInputGainParameter * mInBuffer[sample] * gain * *mOutputGainParameter;
+                                  mOutBuffer[sample] = *mInputGainParameter * mInBuffer[sample] * mGain * *mOutputGainParameter;
                                   
                               }
                               
                               else //in this loop the saturation/distortion is after the compression
                               {
                                   
-                                  mOutBuffer[sample] = *mInputGainParameter * mInBuffer[sample] * *mOutputGainParameter;
+                                  mOutBuffer[sample] = *mInputGainParameter * mInBuffer[sample] * mGain * *mOutputGainParameter;
                                   
                               }
-                             
                 
             }
        
