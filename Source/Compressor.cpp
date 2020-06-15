@@ -14,7 +14,7 @@
 Compressor::Compressor()
 {
     //set variables to a default value
-    mBuffer = CircularBuffer(150, 20); //sets the buffer to circular buffer
+    mBuffer = CircularBuffer(150, 20); //sets the buffer to circular buffer, 150 buffer size and 20 samples delay
     mTav = 0.01; // mTav is the averaging time when calculating mRms
     mRms = 0;
     mGain = 1;
