@@ -89,6 +89,14 @@
 			isa = PBXBuildFile;
 			fileRef = 973C500119ABD42555693B1C;
 		};
+		3CD9C89455D4FB64448A9BEF = {
+			isa = PBXBuildFile;
+			fileRef = 9EFE9E0BA07D5C1C30B8037F;
+		};
+		98BA2EE69D479B80E7A85EDD = {
+			isa = PBXBuildFile;
+			fileRef = 999D22DD82DF062592BB2777;
+		};
 		C261BFBA9BF1D3FF8CAE1C55 = {
 			isa = PBXBuildFile;
 			fileRef = DED189483235A65B2F37BBCA;
@@ -355,11 +363,39 @@
 			path = "../../JuceLibraryCode/include_juce_audio_plugin_client_VST_utils.mm";
 			sourceTree = "SOURCE_ROOT";
 		};
+		99900CADBFE976E5E71225BE = {
+			isa = PBXFileReference;
+			lastKnownFileType = file;
+			name = "juce_audio_formats";
+			path = "/Users/rohojua/SDK/JUCE/modules/juce_audio_formats";
+			sourceTree = "<absolute>";
+		};
+		999D22DD82DF062592BB2777 = {
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
+			name = Compressor.cpp;
+			path = ../../Source/Compressor.cpp;
+			sourceTree = "SOURCE_ROOT";
+		};
 		9ABE0C7ABF2BA901C17EF632 = {
 			isa = PBXFileReference;
 			lastKnownFileType = sourcecode.cpp.objcpp;
 			name = "include_juce_core.mm";
 			path = "../../JuceLibraryCode/include_juce_core.mm";
+			sourceTree = "SOURCE_ROOT";
+		};
+		9E9D721D2B4DA2E6490F1F38 = {
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
+			name = CircularBuffer.h;
+			path = ../../Source/CircularBuffer.h;
+			sourceTree = "SOURCE_ROOT";
+		};
+		9EFE9E0BA07D5C1C30B8037F = {
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
+			name = CircularBuffer.cpp;
+			path = ../../Source/CircularBuffer.cpp;
 			sourceTree = "SOURCE_ROOT";
 		};
 		A297F89FA896A0B8F88FFAFC = {
@@ -369,25 +405,11 @@
 			path = "../../JuceLibraryCode/include_juce_events.mm";
 			sourceTree = "SOURCE_ROOT";
 		};
-		A9086E8F02B586902F858A55 = {
-			isa = PBXFileReference;
-			lastKnownFileType = file.r;
-			name = "include_juce_audio_plugin_client_AU.r";
-			path = "../../JuceLibraryCode/include_juce_audio_plugin_client_AU.r";
-			sourceTree = "SOURCE_ROOT";
-		};
 		AE19AEEA4A5024DA17294B05 = {
 			isa = PBXFileReference;
 			lastKnownFileType = sourcecode.cpp.cpp;
 			name = "include_juce_audio_plugin_client_utils.cpp";
 			path = "../../JuceLibraryCode/include_juce_audio_plugin_client_utils.cpp";
-			sourceTree = "SOURCE_ROOT";
-		};
-		B77EEDF9CCD7156EC0DF82FD = {
-			isa = PBXFileReference;
-			lastKnownFileType = sourcecode.cpp.objcpp;
-			name = "include_juce_audio_processors.mm";
-			path = "../../JuceLibraryCode/include_juce_audio_processors.mm";
 			sourceTree = "SOURCE_ROOT";
 		};
 		B91E83D1B03DAD5037B3CC3B = {
@@ -396,13 +418,6 @@
 			name = "include_juce_audio_plugin_client_AU_2.mm";
 			path = "../../JuceLibraryCode/include_juce_audio_plugin_client_AU_2.mm";
 			sourceTree = "SOURCE_ROOT";
-		};
-		BBE86450C6223742FBDBE419 = {
-			isa = PBXFileReference;
-			lastKnownFileType = file;
-			name = "juce_audio_utils";
-			path = "/Users/rohojua/SDK/JUCE/modules/juce_audio_utils";
-			sourceTree = "<absolute>";
 		};
 		BD75649ED85E61452399F244 = {
 			isa = PBXFileReference;
@@ -446,11 +461,32 @@
 			path = ../../Source/PluginEditor.cpp;
 			sourceTree = "SOURCE_ROOT";
 		};
-		99900CADBFE976E5E71225BE = {
+		A7407D432C23F6C870D4006D = {
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
+			name = Compressor.h;
+			path = ../../Source/Compressor.h;
+			sourceTree = "SOURCE_ROOT";
+		};
+		A9086E8F02B586902F858A55 = {
+			isa = PBXFileReference;
+			lastKnownFileType = file.r;
+			name = "include_juce_audio_plugin_client_AU.r";
+			path = "../../JuceLibraryCode/include_juce_audio_plugin_client_AU.r";
+			sourceTree = "SOURCE_ROOT";
+		};
+		B77EEDF9CCD7156EC0DF82FD = {
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.objcpp;
+			name = "include_juce_audio_processors.mm";
+			path = "../../JuceLibraryCode/include_juce_audio_processors.mm";
+			sourceTree = "SOURCE_ROOT";
+		};
+		BBE86450C6223742FBDBE419 = {
 			isa = PBXFileReference;
 			lastKnownFileType = file;
-			name = "juce_audio_formats";
-			path = "/Users/rohojua/SDK/JUCE/modules/juce_audio_formats";
+			name = "juce_audio_utils";
+			path = "/Users/rohojua/SDK/JUCE/modules/juce_audio_utils";
 			sourceTree = "<absolute>";
 		};
 		C0798D6582E166038ACCF4E3 = {
@@ -628,6 +664,10 @@
 				E98893140B4985AEB7CC92A7,
 				973C500119ABD42555693B1C,
 				BD75649ED85E61452399F244,
+				9EFE9E0BA07D5C1C30B8037F,
+				9E9D721D2B4DA2E6490F1F38,
+				999D22DD82DF062592BB2777,
+				A7407D432C23F6C870D4006D,
 			);
 			name = Source;
 			sourceTree = "<group>";
@@ -1689,6 +1729,8 @@
 			files = (
 				1BFE8DBA238E2C716A8E9858,
 				B5117EAD15C1F137A0904949,
+				3CD9C89455D4FB64448A9BEF,
+				98BA2EE69D479B80E7A85EDD,
 				C261BFBA9BF1D3FF8CAE1C55,
 				65E6D45B0C572DBEBB2702F4,
 				6EEC8D15FC35DABC3630141F,

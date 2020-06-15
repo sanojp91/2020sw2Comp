@@ -15,7 +15,7 @@
 _2020sw2compAudioProcessorEditor::_2020sw2compAudioProcessorEditor (_2020sw2compAudioProcessor& p, AudioProcessorValueTreeState& vts)
     : AudioProcessorEditor (&p), processor (p), valueTreeState(vts)
 {
-    //set look and feel for the mix slider and buttons
+    //set look and feel for the mix & knee slider and buttons
     getLookAndFeel().setColour(Slider::thumbColourId, Colours::skyblue);
     getLookAndFeel().setColour(Slider::rotarySliderFillColourId, Colours::lightcyan);
     getLookAndFeel().setColour(ToggleButton::textColourId, Colours::whitesmoke);
@@ -33,10 +33,6 @@ _2020sw2compAudioProcessorEditor::_2020sw2compAudioProcessorEditor (_2020sw2comp
     //Input Gain Slider
     mInputSlider.setSliderStyle(Slider::SliderStyle::RotaryVerticalDrag);
     mInputSlider.setTextBoxStyle(Slider::TextBoxBelow, true, 80, 30);
-    mInputSlider.setRange(-15.0f, 15.0f, 1.0f);
-    mInputSlider.setValue(0.0f);
-    mInputSlider.setTextValueSuffix("dB");
-    mInputSlider.setSkewFactorFromMidPoint(0.0f);
     addAndMakeVisible(mInputSlider);
     //ValueTreeState
     mInputAttachment.reset( new AudioProcessorValueTreeState::SliderAttachment(valueTreeState, "inputGain", mInputSlider));
@@ -49,10 +45,7 @@ _2020sw2compAudioProcessorEditor::_2020sw2compAudioProcessorEditor (_2020sw2comp
     //Threshold Slider
      mThresholdSlider.setSliderStyle(Slider::SliderStyle::RotaryVerticalDrag);
      mThresholdSlider.setTextBoxStyle(Slider::TextBoxBelow, true, 80, 30);
-     mThresholdSlider.setRange(0.0f, 100.0f, 0.1f);
-     mThresholdSlider.setValue(50.0f);
-     mThresholdSlider.setTextValueSuffix("%");
-     mThresholdSlider.setSkewFactorFromMidPoint(50.0f);
+     mThresholdSlider.setTextValueSuffix("dB");
      addAndMakeVisible(mThresholdSlider);
      //ValueTreeState
      mThresholdAttachment.reset( new AudioProcessorValueTreeState::SliderAttachment(valueTreeState, "threshold", mThresholdSlider));
@@ -62,11 +55,21 @@ _2020sw2compAudioProcessorEditor::_2020sw2compAudioProcessorEditor (_2020sw2comp
      mThresholdLabel.attachToComponent(&mThresholdSlider, false);
      addAndMakeVisible(mThresholdLabel);
     
+    //Knee Slider
+    mKneeSlider.setSliderStyle(Slider::SliderStyle::RotaryVerticalDrag);
+    mKneeSlider.setTextBoxStyle(Slider::NoTextBox, true, 0, 0);
+    addAndMakeVisible(mKneeSlider);
+    //ValueTreeState
+    mKneeAttachment.reset( new AudioProcessorValueTreeState::SliderAttachment(valueTreeState, "knee", mKneeSlider));
+    //Label
+    mKneeLabel.setText("Knee", dontSendNotification);
+    mKneeLabel.setJustificationType(Justification::centredLeft);
+    mKneeLabel.attachToComponent(&mKneeSlider, false);
+    addAndMakeVisible(mKneeLabel);
+    
     //Attack Time Slider
      mAttackSlider.setSliderStyle(Slider::SliderStyle::RotaryVerticalDrag);
      mAttackSlider.setTextBoxStyle(Slider::TextBoxBelow, true, 80, 30);
-     mAttackSlider.setRange(3.0f, 30.0f, 1.0f);
-     mAttackSlider.setValue(10.0f);
      mAttackSlider.setTextValueSuffix("MS");
      addAndMakeVisible(mAttackSlider);
      //ValueTreeState
@@ -80,8 +83,6 @@ _2020sw2compAudioProcessorEditor::_2020sw2compAudioProcessorEditor (_2020sw2comp
     //Release Time Slider
      mReleaseSlider.setSliderStyle(Slider::SliderStyle::RotaryVerticalDrag);
      mReleaseSlider.setTextBoxStyle(Slider::TextBoxBelow, true, 80, 30);
-     mReleaseSlider.setRange(30.0f, 500.0f, 1.0f);
-     mReleaseSlider.setValue(30.0f);
      mReleaseSlider.setTextValueSuffix("MS");
      addAndMakeVisible(mReleaseSlider);
      //ValueTreeState
@@ -95,8 +96,6 @@ _2020sw2compAudioProcessorEditor::_2020sw2compAudioProcessorEditor (_2020sw2comp
     //Ratio Slider
     mRatioSlider.setSliderStyle(Slider::SliderStyle::RotaryVerticalDrag);
     mRatioSlider.setTextBoxStyle(Slider::TextBoxBelow, true, 80, 30);
-    mRatioSlider.setRange(0.0f, 100.f, 1.f);
-    mRatioSlider.setValue(50.f);
     mRatioSlider.setTextValueSuffix("%");
     addAndMakeVisible(mRatioSlider);
     //ValuteTreeState
@@ -110,10 +109,6 @@ _2020sw2compAudioProcessorEditor::_2020sw2compAudioProcessorEditor (_2020sw2comp
     //Output Gain Slider
      mOutPutSlider.setSliderStyle(Slider::SliderStyle::RotaryVerticalDrag);
      mOutPutSlider.setTextBoxStyle(Slider::TextBoxBelow, true, 80, 30);
-     mOutPutSlider.setRange(-10.0f, 20.0f, 1.0f);
-     mOutPutSlider.setValue(0.0f);
-     mOutPutSlider.setTextValueSuffix("dB");
-     mOutPutSlider.setSkewFactorFromMidPoint(0.0f);
      addAndMakeVisible(mOutPutSlider);
      //ValueTreeState
      mOutputAttachment.reset( new AudioProcessorValueTreeState::SliderAttachment(valueTreeState, "outputGain", mOutPutSlider));
@@ -126,8 +121,6 @@ _2020sw2compAudioProcessorEditor::_2020sw2compAudioProcessorEditor (_2020sw2comp
     //Mix Slider
      mMixSlider.setSliderStyle(Slider::SliderStyle::RotaryVerticalDrag);
      mMixSlider.setTextBoxStyle(Slider::TextBoxRight, true, 50, 15);
-     mMixSlider.setRange(0.0f, 100.0f, 1.f);
-     mMixSlider.setValue(0.0f);
      mMixSlider.setTextValueSuffix("%");
      addAndMakeVisible(mMixSlider);
      //ValueTreeState
@@ -141,8 +134,6 @@ _2020sw2compAudioProcessorEditor::_2020sw2compAudioProcessorEditor (_2020sw2comp
     //Saturation Slider
      mSatSlider.setSliderStyle(Slider::SliderStyle::RotaryVerticalDrag);
      mSatSlider.setTextBoxStyle(Slider::TextBoxBelow, true, 80, 30);
-     mSatSlider.setRange(0.0f, 100.0f, 0.01f);
-     mSatSlider.setValue(0.0f);
      mSatSlider.setTextValueSuffix("%");
      addAndMakeVisible(mSatSlider);
      //ValueTreeState
@@ -215,6 +206,7 @@ void _2020sw2compAudioProcessorEditor::resized()
     
     //positioning for the mix slider, needs to be tweaked
     mMixSlider.setBounds(getWidth() - 100, getHeight() - 220, 100, 100);
+    mKneeSlider.setBounds(getWidth() / 2, getHeight() - 200, 50, 50);
     
     //positioning for the buttons, also needs to be tweaked
     mBypassButton.setBounds(getWidth() - 590, getHeight() - 195, 80, 50);

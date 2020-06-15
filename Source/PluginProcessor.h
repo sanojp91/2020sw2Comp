@@ -11,6 +11,7 @@
 #pragma once
 
 #include <JuceHeader.h>
+#include "Compressor.h" //include the compressor class
 
 //==============================================================================
 /**
@@ -57,21 +58,14 @@ public:
 
 private:
     
-    //declaring variables for the compressor
-    double currentSampleRate;
-    double mLookahead; //lookahead in ms
-    double mWindowTime; //window time in ms
-   // double mSlope; //slope angle in percent using the ratio parameter instead
     
-    // would it be necessary to have the variables above as std::atomic?
-   /* std::atomic<int>* currentSampleRate = nullptr;
-    std::atomic<double>* mLookaheadParameter = nullptr;
-    std::atomic<double>* mWindowTimeParameter = nullptr;
-    std::atomic<double>* mSlopeParameter = nullptr;*/
+    //declare a new array of compressors
+    Array<Compressor> mAllCompressors;
     
     //declaring parameters for sliders
     std::atomic<float>* mInputGainParameter = nullptr;
     std::atomic<float>* mThresholdParameter = nullptr;
+    std::atomic<float>* mKneeParameter = nullptr;
     std::atomic<float>* mRatioParameter = nullptr;
     std::atomic<float>* mAttackParameter = nullptr;
     std::atomic<float>* mReleaseParameter = nullptr;
