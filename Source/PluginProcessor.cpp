@@ -25,44 +25,58 @@ _2020sw2compAudioProcessor::_2020sw2compAudioProcessor()
                                      {
                                     std::make_unique<AudioParameterFloat>("inputGain", //ID
                                                                           "Input Gain", //Name
-                                                                          0.f, //Minimum
+                                                NormalisableRange<float> (0.f, //Minimum
                                                                           2.f, //Maximum
-                                                                          1.f), //Default Value
+                                                                          0.01f), //change in incraments
+                                                                          1.f), //default value
                                     std::make_unique<AudioParameterFloat>("threshold",
                                                                           "Threshold",
-                                                                          0.f,
-                                                                          100.f,
-                                                                          50.f),
+                                                NormalisableRange<float> (-60.f,
+                                                                           20.f,
+                                                                          0.01f),
+                                                                          10.0f),
+                                    std::make_unique<AudioParameterFloat>("knee",
+                                                                          "Knee",
+                                                NormalisableRange<float> (0.0f,
+                                                                          24.0f,
+                                                                          0.01f),
+                                                                          0.0f),
                                     std::make_unique<AudioParameterFloat>("ratio",
-                                                                           "Ratio",
-                                                                           0.f,
-                                                                           100.f,
-                                                                           50.f),
+                                                                          "Ratio",
+                                                NormalisableRange<float> (1.0f,
+                                                                          20.0f,
+                                                                          0.01f),
+                                                                          2.0f),
                                     std::make_unique<AudioParameterFloat>("attack",
                                                                           "Attack",
-                                                                          0.1f,
-                                                                          300.f,
-                                                                          0.1f),
+                                                NormalisableRange<float> (0.01f,
+                                                                          500.f,
+                                                                          0.01f),
+                                                                          100.0f),
                                     std::make_unique<AudioParameterFloat>("release",
                                                                           "Relase",
-                                                                          3.f,
-                                                                          500.f,
-                                                                          300.f),
+                                                 NormalisableRange<float> (0.01f,
+                                                                          2000.f,
+                                                                          0.01f),
+                                                                          500.0f),
                                     std::make_unique<AudioParameterFloat>("saturation",
                                                                           "Saturation",
-                                                                          0.f,
+                                                NormalisableRange<float> (0.0f,
                                                                           100.f,
-                                                                          50.f),
+                                                                          0.1f),
+                                                                          50.0f),
                                     std::make_unique<AudioParameterFloat>("mix",
                                                                           "Mix",
-                                                                          0.f,
+                                                NormalisableRange<float>  (0.f,
                                                                           100.f,
-                                                                          100.f),
+                                                                          0.01f),
+                                                                          100.0f),
                                     std::make_unique<AudioParameterFloat>("outputGain",
                                                                           "Output Gain",
-                                                                          0.f,
-                                                                          2.f,
-                                                                          1.f),
+                                                NormalisableRange<float> (0.0f,
+                                                                          2.0f,
+                                                                          0.01f),
+                                                                          1.0f),
                                     std::make_unique<AudioParameterBool>("prePostSat", //ID
                                                                          "Pre Post Saturation", //Name
                                                                          false), //Default
@@ -74,6 +88,7 @@ _2020sw2compAudioProcessor::_2020sw2compAudioProcessor()
 {
     mInputGainParameter = parameters.getRawParameterValue("inputGain");
     mThresholdParameter = parameters.getRawParameterValue("threshold");
+    mKneeParameter = parameters.getRawParameterValue("knee");
     mRatioParameter = parameters.getRawParameterValue("ratio");
     mAttackParameter = parameters.getRawParameterValue("attack");
     mReleaseParameter = parameters.getRawParameterValue("release");
@@ -156,11 +171,12 @@ void _2020sw2compAudioProcessor::changeProgramName (int index, const String& new
 void _2020sw2compAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
 
-    currentSampleRate = sampleRate; //setting the sample rate to currentSampleRate
     
-   // mSlope = 0.5f; //setting the slope to 50% using the ratio paramter instead
-    mLookahead = 0.003f; //setting lookahead to 30 ms
-    mWindowTime = 0.001f; //setting window size to 1ms
+    //create an array of compressors
+       for (int channel = 0; channel < getTotalNumOutputChannels(); channel++)
+       {
+           mAllCompressors.add(Compressor());
+       }
     
     //setting both buttons to false
     *mBypassParameter = false;
@@ -214,20 +230,23 @@ void _2020sw2compAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiB
     for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
         buffer.clear (i, 0, buffer.getNumSamples());
 
+    //maths on the attack and release times to convert from seconds to milliseconds and from a linear to time scale.
+    float mAttackTime = 1 - std::pow(MathConstants<float>::euler, ((1 / getSampleRate()) * -2.2f) / (*mAttackParameter / 1000.0f));
+    float mReleaseTime = 1 - std::pow(MathConstants<float>::euler, ((1 / getSampleRate()) * -2.2f) / (*mReleaseParameter / 1000.0f));
     
-    
-    for (int channel = 0; channel < totalNumInputChannels; ++channel)
+    //Loop through samples and channels
+   for (auto sample = 0; sample < buffer.getNumSamples(); ++sample)
     {
-        //create an in- and outbuffer
-        auto* mInBuffer = buffer.getReadPointer(channel);
-        auto* mOutBuffer = buffer.getWritePointer(channel);
-        
-     
-        
-        for (auto sample = 0; sample < buffer.getNumSamples(); ++sample)
+
+        for (int channel = 0; channel < totalNumInputChannels; ++channel)
         {
             
-
+            //create an in- and outbuffer
+            auto* mInBuffer = buffer.getReadPointer(channel); //maybe not necessary?
+            auto* mOutBuffer = buffer.getWritePointer(channel);
+            
+            //get a reference from Compressor class for the current channel
+            Compressor* mComp = &mAllCompressors.getReference(channel);
             
             if (*mBypassParameter) //if bypass is enabled (true)
             {
@@ -238,81 +257,20 @@ void _2020sw2compAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiB
         
             else //if bypass is disabled (false)
             {
-                //creating different variables for the compressor
-                // envelope
-                double  mEnv = 0.0f;
-                // sample offset to lookahead window start
-                int mWindowSampleOffset = (int) (currentSampleRate * mLookahead);
-                // samples count in lookahead window
-                int     mLookaheadSamples = (int) (currentSampleRate * mWindowTime);
-                
-                
-                //mAttack & mRelease only gets values from approximately a quarter of mAttackParameter & mReleaseParameter's value range, mAttack & mRelease values goes from 0.999992 - 1
-                // attack and release "per sample decay"
-                 double mAttack = (*mAttackParameter == 0.0f) ? (0.0f) : exp (-1.0f / (currentSampleRate * *mAttackParameter));
-                 
-                 double  mRelease = (*mReleaseParameter == 0.0f) ? (0.0f) : exp (-1.0f / (currentSampleRate * *mReleaseParameter));
-                 
-                 //compute RMS
-                 double  mRms = 0.f;
-                 
-                 // for each sample in lookahead window (44 for 44.1kHz sample rate)
-                 for (int i = 0; i < mLookaheadSamples; ++i)
-                 {
-                     int     mLki = sample + i + mWindowSampleOffset; //could be wrong equation? mLki values range from 250-650, should be more if "sample" ranges from 0-44100?
-                     double  mSmp;
-                     
-                     // if we in bounds of signal?
-                     // if so, convert to mono
-                     if (mLki < currentSampleRate)
-                     {
-                         mSmp = 0.5f * mInBuffer [mLki];
-                         //mSmp = 0.5 * inBuffer [mLki] [0] + 0.5 * inBuffer [mLki] [1];
-                     }
-                     else
-                     {
-                         
-                          mSmp = 0.0f;      // if we out of bounds we just get zero in smp
-                         
-                     }
-                     
-                     mRms += mSmp * mSmp;  // square em
-                     
-                 }
-                 
-                 double  mRmsVal = sqrt (mRms / mLookaheadSamples);   // root-mean-square
-                 
-                 // dynamic selection: attack or release?
-                 double  mTheta = mRmsVal > mEnv ? mAttack : mRelease;
-                 
-                 // smoothing with capacitor, envelope extraction
-                 // here be aware of pIV denormal numbers glitch
-                 mEnv = (1.0f - mTheta) * mRmsVal + mTheta * mEnv;
-                 
-                 // the hard knee 1:N compressor
-                 double  mGain = 1.0f;
-                 
-                
-                 if (mEnv > *mThresholdParameter)
-                 {
-                 mGain = mGain - (mEnv - *mThresholdParameter) * *mRatioParameter;
-                 }
-                
                 
                   if (*mPrePostParameter) //if prepost it true, in this loop the saturation/distortion is before compression
-                              {
+                  {
+                                
+                    //Calculate the compressed samples with some initial values passed into the compressSample function
+                    mOutBuffer[sample] = *mInputGainParameter * mComp->compressSample(mOutBuffer[sample], *mThresholdParameter, *mRatioParameter, mAttackTime, mReleaseTime, *mKneeParameter) * *mOutputGainParameter;
                                   
-                                  
-                                  mOutBuffer[sample] = *mInputGainParameter * mInBuffer[sample] * mGain * *mOutputGainParameter;
-                                  
-                              }
+                    }
                               
-                              else //in this loop the saturation/distortion is after the compression
-                              {
+                        else //in this loop the saturation/distortion is after the compression
+                        {
                                   
-                                  mOutBuffer[sample] = *mInputGainParameter * mInBuffer[sample] * mGain * *mOutputGainParameter;
-                                  
-                              }
+                            mOutBuffer[sample] = *mInputGainParameter * mComp->compressSample(mOutBuffer[sample], *mThresholdParameter, *mRatioParameter, mAttackTime, mReleaseTime, *mKneeParameter) * *mOutputGainParameter;
+                        }
                 
             }
        

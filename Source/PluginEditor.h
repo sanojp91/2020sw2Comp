@@ -92,6 +92,7 @@ private:
     //declaring sliders and labels for them
     Slider mInputSlider;
     Slider mThresholdSlider;
+    Slider mKneeSlider;
     Slider mAttackSlider;
     Slider mReleaseSlider;
     Slider mRatioSlider;
@@ -101,6 +102,7 @@ private:
     
     Label mInputLabel;
     Label mThresholdLabel;
+    Label mKneeLabel;
     Label mAttackLabel;
     Label mReleaseLabel;
     Label mRatioLabel;
@@ -111,6 +113,7 @@ private:
     //slider and button attachments
     std::unique_ptr<AudioProcessorValueTreeState::SliderAttachment> mInputAttachment;
     std::unique_ptr<AudioProcessorValueTreeState::SliderAttachment> mThresholdAttachment;
+    std::unique_ptr<AudioProcessorValueTreeState::SliderAttachment> mKneeAttachment;
     std::unique_ptr<AudioProcessorValueTreeState::SliderAttachment> mAttackAttachment;
     std::unique_ptr<AudioProcessorValueTreeState::SliderAttachment> mReleaseAttachment;
     std::unique_ptr<AudioProcessorValueTreeState::SliderAttachment> mRatioAttachment;

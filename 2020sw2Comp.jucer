@@ -11,6 +11,12 @@
       <FILE id="tzexxb" name="PluginEditor.cpp" compile="1" resource="0"
             file="Source/PluginEditor.cpp"/>
       <FILE id="XRuY8i" name="PluginEditor.h" compile="0" resource="0" file="Source/PluginEditor.h"/>
+      <FILE id="X22QZk" name="CircularBuffer.cpp" compile="1" resource="0"
+            file="Source/CircularBuffer.cpp"/>
+      <FILE id="M38fUc" name="CircularBuffer.h" compile="0" resource="0"
+            file="Source/CircularBuffer.h"/>
+      <FILE id="KVBmIt" name="Compressor.cpp" compile="1" resource="0" file="Source/Compressor.cpp"/>
+      <FILE id="Ttm2P1" name="Compressor.h" compile="0" resource="0" file="Source/Compressor.h"/>
     </GROUP>
   </MAINGROUP>
   <EXPORTFORMATS>
