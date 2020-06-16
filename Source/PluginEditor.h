@@ -21,10 +21,10 @@ class OtherLookAndFeel : public LookAndFeel_V4 //custom look and feel class for 
 {
     
 public:
-    OtherLookAndFeel()
+/*   OtherLookAndFeel()
     {
-        setColour (Slider::thumbColourId, Colours::darkkhaki);
-    }
+       setColour (Slider::thumbColourId, Colours::darkkhaki);
+    }*/
 
     void drawRotarySlider (Graphics& g, int x, int y, int width, int height, float sliderPos, const float rotaryStartAngle, const float rotaryEndAngle, Slider& slider) override
     {
@@ -37,10 +37,11 @@ public:
         auto rw = radius * 2.0f;
         auto angle = rotaryStartAngle + sliderPos * (rotaryEndAngle - rotaryStartAngle);
         
+
         //fill
         g.setColour (Colours::antiquewhite);
         g.fillEllipse (rx, ry, rw, rw);
-        
+
         //outline
         g.setColour (Colours::black);
         g.drawEllipse(rx, ry, rw, rw, 4.0f);

@@ -26,7 +26,7 @@ _2020sw2compAudioProcessor::_2020sw2compAudioProcessor()
                                     std::make_unique<AudioParameterFloat>("inputGain", //ID
                                                                           "Input Gain", //Name
                                                 NormalisableRange<float> (0.f, //Minimum
-                                                                          2.f, //Maximum
+                                                                          10.f, //Maximum
                                                                           0.01f), //change in incraments
                                                                           1.f), //default value
                                     std::make_unique<AudioParameterFloat>("threshold",
@@ -40,7 +40,7 @@ _2020sw2compAudioProcessor::_2020sw2compAudioProcessor()
                                                 NormalisableRange<float> (0.0f,
                                                                           24.0f,
                                                                           0.01f),
-                                                                          0.0f),
+                                                                          12.0f),
                                     std::make_unique<AudioParameterFloat>("ratio",
                                                                           "Ratio",
                                                 NormalisableRange<float> (1.0f,
@@ -67,14 +67,14 @@ _2020sw2compAudioProcessor::_2020sw2compAudioProcessor()
                                                                           50.0f),
                                     std::make_unique<AudioParameterFloat>("mix",
                                                                           "Mix",
-                                                NormalisableRange<float>  (0.f,
-                                                                          100.f,
+                                                NormalisableRange<float>  (0.0f,
+                                                                          1.0f,
                                                                           0.01f),
-                                                                          100.0f),
+                                                                          1.0f),
                                     std::make_unique<AudioParameterFloat>("outputGain",
                                                                           "Output Gain",
                                                 NormalisableRange<float> (0.0f,
-                                                                          2.0f,
+                                                                          10.0f,
                                                                           0.01f),
                                                                           1.0f),
                                     std::make_unique<AudioParameterBool>("prePostSat", //ID
@@ -262,14 +262,14 @@ void _2020sw2compAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiB
                   {
                                 
                     //Calculate the compressed samples with some initial values passed into the compressSample function
-                    mOutBuffer[sample] = *mInputGainParameter * mComp->compressSample(mOutBuffer[sample], *mThresholdParameter, *mRatioParameter, mAttackTime, mReleaseTime, *mKneeParameter) * *mOutputGainParameter;
+                    mOutBuffer[sample] = *mInputGainParameter * *mMixParameter * mComp->compressSample(mOutBuffer[sample], *mThresholdParameter, *mRatioParameter, mAttackTime, mReleaseTime, *mKneeParameter) * *mOutputGainParameter + mOutBuffer[sample] * (1 - *mMixParameter);
                                   
                     }
                               
                         else //in this loop the saturation/distortion is after the compression
                         {
                                   
-                            mOutBuffer[sample] = *mInputGainParameter * mComp->compressSample(mOutBuffer[sample], *mThresholdParameter, *mRatioParameter, mAttackTime, mReleaseTime, *mKneeParameter) * *mOutputGainParameter;
+                            mOutBuffer[sample] = *mInputGainParameter * *mMixParameter * mComp->compressSample(mOutBuffer[sample], *mThresholdParameter, *mRatioParameter, mAttackTime, mReleaseTime, *mKneeParameter) * *mOutputGainParameter + mOutBuffer[sample] * (1 - *mMixParameter);
                         }
                 
             }
