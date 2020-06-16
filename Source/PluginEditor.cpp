@@ -185,11 +185,14 @@ void _2020sw2compAudioProcessorEditor::paint (Graphics& g)
 {
     // solid black background colour
     g.fillAll (Colours::darkblue);
+    //set colour and background for compressor controls
     g.setColour (Colours::steelblue);
     g.fillRoundedRectangle(85, 60, 340, 140, 5.0);
     g.fillRoundedRectangle(getWidth() / 2 - 50, 0, 100, 85, 5.0);
+    //set colour and background for saturation control
     g.setColour(Colours::midnightblue);
     g.fillRoundedRectangle(425, 60, 85, 140, 5.0);
+    //set colour and background for input/output control
     g.setColour(Colours::blueviolet);
     g.fillRoundedRectangle(510, 60, 85, 140, 5.0);
     g.fillRoundedRectangle(0, 60, 85, 140, 5.0);
@@ -221,17 +224,6 @@ void _2020sw2compAudioProcessorEditor::resized()
     //positioning for the buttons, also needs to be tweaked
     mBypassButton.setBounds(getWidth() - 590, getHeight() - 195, 80, 50);
     mPrePostSatButton.setBounds(getWidth() - 500, getHeight() - 195, 80, 50);
-
-    //some attempts and positioning the mix slider and buttons more cleanly, but it fucks with me
-     //auto mixHeight = 10;
-    // auto mixWidth = 100;
-    // mMixSlider.setBounds (area.removeFromTop(mixHeight));
-    // mMixSlider.setBounds (area.removeFromBottom(mixWidth));
-  // auto buttonHeight = 5;
-   //auto buttonWidth = 10;
-   // mPrePostSatButton.setBounds (area.removeFromTop(buttonHeight));
-   // mPrePostSatButton.setBounds (area.removeFromLeft(buttonWidth));
-  //  mBypassButton.setBounds (area.removeFromLeft(buttonWidth));
 
     
 }
