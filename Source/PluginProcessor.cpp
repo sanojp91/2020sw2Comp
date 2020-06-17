@@ -313,7 +313,7 @@ void _2020sw2compAudioProcessor::setStateInformation (const void* data, int size
         
     }
 }
-
+//test
 //==============================================================================
 // This creates new instances of the plugin..
 AudioProcessor* JUCE_CALLTYPE createPluginFilter()
