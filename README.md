@@ -26,7 +26,7 @@ Author Alex Rycroft
 
 [Audio Ordeal: Alex Rycroft] (https://audioordeal.co.uk/how-to-build-a-vst-compressor/)
 
-[Github repo]: https://github.com/aRycroft/JuceTutorial6
+[Github repo] https://github.com/aRycroft/JuceTutorial6
 
 Author dszakallas
 
