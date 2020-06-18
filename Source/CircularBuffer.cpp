@@ -3,7 +3,8 @@
 
     CircularBuffer.cpp
     Created: 2 Apr 2020 2:07:25pm
-    Author:  Alex
+    Author:  Alex Rycroft
+    Website: www.audioordeal.co.uk
 
   ==============================================================================
 */
