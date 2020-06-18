@@ -23,12 +23,16 @@ as well as a Mix knob that lets the user decide how much of the affected signal 
 ### Resources
 #### Compressor
 Author Alex Rycroft
+
 [Audio Ordeal: Alex Rycroft] (https://audioordeal.co.uk/how-to-build-a-vst-compressor/)
-[Github repo] (https://github.com/aRycroft/JuceTutorial6)
+
+[Github repo]: https://github.com/aRycroft/JuceTutorial6
 
 Author dszakallas
+
 [a native compressor plugin] (https://szakallas.eu/2014/05/20/your-first-native-audio-effect/)
 
 Author abaga129
+
 [Developing Audio Plugins - Using a Parameter] (https://www.modernmetalproduction.com/developing-audio-plugins-using-a-parameter/?fbclid=IwAR2nhuPNBgjXohK1LeQlfKlFcrdDNMPsmXRExC8NEcVo_GLd6ixm3HJ1vE4)
 
