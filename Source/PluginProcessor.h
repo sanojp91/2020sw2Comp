@@ -4,6 +4,8 @@
     This file was auto-generated!
 
     It contains the basic framework code for a JUCE plugin processor.
+ 
+    This code implement parts of Alex Rycroft's code (audioordeal.com)
 
   ==============================================================================
 */

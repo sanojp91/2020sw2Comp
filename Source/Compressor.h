@@ -1,6 +1,9 @@
 /*
   ==============================================================================
 
+    Main Author:  Alex Rycroft
+    Website: www.audioordeal.co.uk
+ 
     Compressor.h
     Created: 14 Jun 2020 5:15:12pm
     Author:  Jonas Persson
