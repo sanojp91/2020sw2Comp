@@ -58,6 +58,10 @@ public:
 
 private:
     
+    //DSP declerations
+    juce::dsp::Gain<float> preGain; // [1]
+    dsp::WaveShaper<float> waveShaper1;
+    dsp::WaveShaper<float> waveShaper2;
     
     //declare a new array of compressors
     Array<Compressor> mAllCompressors;
@@ -73,9 +77,18 @@ private:
     std::atomic<float>* mMixParameter = nullptr;
     std::atomic<float>* mOutputGainParameter = nullptr;
     
+    
+    
     //declaring parameters for buttons
     std::atomic<float>* mBypassParameter = nullptr;
     std::atomic<float>* mPrePostParameter = nullptr;
+    
+    //waveshaper declerations button and sliders
+    std::atomic<float>* dGainParameter = nullptr;
+    std::atomic<float>* dMixParameter = nullptr;
+    std::atomic<float>* dToggleParameter = nullptr;
+    
+    
 
     AudioProcessorValueTreeState parameters;
 

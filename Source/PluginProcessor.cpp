@@ -83,9 +83,35 @@ _2020sw2compAudioProcessor::_2020sw2compAudioProcessor()
                                     std::make_unique<AudioParameterBool>("bypass",
                                                                          "Bypass",
                                                                          false),
-                                    })
+                                    std::make_unique<AudioParameterFloat>( // if a float it needs to be atomic<float> if int <int>
+                                                                          "dGain",   //parameter ID
+                                                                          "Gain",    // parameter name
+                                                                          -96.0f,    //  min value
+                                                                          12.0f, // max value
+                                                                          -20.0f),       //  default value
+                                   std::make_unique<AudioParameterBool>( // if a float it needs to be atomic<float> if int <int>
+                                                                          "dToggle",   //parameter ID
+                                                                          "Toggle",    // parameter name
+                                                                           false),
+                                                        
+                                   std::make_unique<AudioParameterFloat>( // if a float it needs to be atomic<float> if int <int>
+                                                                         "dMix",   //parameter ID
+                                                                         "Mix",    // parameter name
+                                                                         0.0f,    //  min value
+                                                                         1.0f, // max value
+                                                                         0.0f),
+                                   
+                               })
+                                    
 #endif
 {
+    waveShaper1.functionToUse = [] (float x) {
+                   return jlimit((float)-0.1, (float) 0.1, x); // lambda function creating the distortion
+           };
+           waveShaper2.functionToUse = [] (float z) {
+                   return std::tanh (z); // second lambda function for second distortion
+             };// [4]
+    
     mInputGainParameter = parameters.getRawParameterValue("inputGain");
     mThresholdParameter = parameters.getRawParameterValue("threshold");
     mKneeParameter = parameters.getRawParameterValue("knee");
@@ -95,6 +121,14 @@ _2020sw2compAudioProcessor::_2020sw2compAudioProcessor()
     mSatParameter = parameters.getRawParameterValue("saturation");
     mMixParameter = parameters.getRawParameterValue("mix");
     mOutputGainParameter = parameters.getRawParameterValue("outputGain");
+    
+    
+    dGainParameter = parameters.getRawParameterValue("dGain");
+    dMixParameter = parameters.getRawParameterValue("dMix");
+    dToggleParameter = parameters.getRawParameterValue("dToggle");
+    
+    preGain.setGainDecibels(*dGainParameter); // pre gain float attached to gain parameter
+
     
     mPrePostParameter = parameters.getRawParameterValue("prePostSat");
     mBypassParameter = parameters.getRawParameterValue("bypass");
@@ -182,6 +216,22 @@ void _2020sw2compAudioProcessor::prepareToPlay (double sampleRate, int samplesPe
     *mBypassParameter = false;
     *mPrePostParameter = false;
 
+    dsp::ProcessSpec spec;
+    spec.sampleRate = sampleRate;
+    spec.maximumBlockSize = samplesPerBlock;
+    spec.numChannels = getMainBusNumOutputChannels();
+    
+
+    
+    preGain.prepare(spec); // prepare DSP
+    waveShaper1.prepare(spec);
+    waveShaper2.prepare(spec);
+
+    preGain.reset(); // reset DSP
+    waveShaper1.reset();
+    waveShaper2.reset();
+    
+    preGain.setGainDecibels(*dGainParameter); //re reference the gain decibel from gain parameter
     
 }
 
@@ -237,6 +287,7 @@ void _2020sw2compAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiB
     //Loop through samples and channels
    for (auto sample = 0; sample < buffer.getNumSamples(); ++sample)
     {
+        
 
         for (int channel = 0; channel < totalNumInputChannels; ++channel)
         {
@@ -313,7 +364,7 @@ void _2020sw2compAudioProcessor::setStateInformation (const void* data, int size
         
     }
 }
-//test
+//testy
 //==============================================================================
 // This creates new instances of the plugin..
 AudioProcessor* JUCE_CALLTYPE createPluginFilter()
