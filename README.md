@@ -18,3 +18,17 @@ The is a bypass toggle switch that lets the signal go through unaffected by eith
 as well as a Mix knob that lets the user decide how much of the affected signal should be present in the circuit, this makes it easy to use for parallel compression. 
 
 ![alt text](https://github.com/sanojp91/2020sw2Comp/blob/master/PluginParameters.png?raw=true "SatComp Parameters")
+
+
+### Resources
+#### Compressor
+Author Alex Rycroft
+[Audio Ordeal: Alex Rycroft] (https://audioordeal.co.uk/how-to-build-a-vst-compressor/)
+[Github repo] (https://github.com/aRycroft/JuceTutorial6)
+
+Author dszakallas
+[a native compressor plugin] (https://szakallas.eu/2014/05/20/your-first-native-audio-effect/)
+
+Author abaga129
+[Developing Audio Plugins - Using a Parameter] (https://www.modernmetalproduction.com/developing-audio-plugins-using-a-parameter/?fbclid=IwAR2nhuPNBgjXohK1LeQlfKlFcrdDNMPsmXRExC8NEcVo_GLd6ixm3HJ1vE4)
+
