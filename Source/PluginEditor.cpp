@@ -162,6 +162,14 @@ _2020sw2compAudioProcessorEditor::_2020sw2compAudioProcessorEditor (_2020sw2comp
     mBypassAttachment.reset( new AudioProcessorValueTreeState::ButtonAttachment(valueTreeState, "bypass", mBypassButton));
     addAndMakeVisible(mBypassButton);
     
+     dToggleButton.setClickingTogglesState(true);
+     dToggleButton.setButtonText("Distortion A");
+    // toggleButton.addListener(this);
+     dToggleButton.setState(Button::ButtonState::buttonNormal);
+     addAndMakeVisible(dToggleButton);
+     dToggleAttachment.reset(new AudioProcessorValueTreeState::ButtonAttachment(valueTreeState, "toggle", dToggleButton));
+
+    
     
     //size of the window
     setSize (600, 200);
@@ -178,6 +186,11 @@ _2020sw2compAudioProcessorEditor::~_2020sw2compAudioProcessorEditor()
     mOutPutSlider.setLookAndFeel(nullptr);
     mMixSlider.setLookAndFeel(nullptr);
     mSatSlider.setLookAndFeel(nullptr);
+    
+}
+
+void _2020sw2compAudioProcessorEditor::buttonClicked(Button* button)
+{
 }
 
 //==============================================================================
@@ -224,6 +237,7 @@ void _2020sw2compAudioProcessorEditor::resized()
     //positioning for the buttons, also needs to be tweaked
     mBypassButton.setBounds(getWidth() - 590, getHeight() - 195, 80, 50);
     mPrePostSatButton.setBounds(getWidth() - 500, getHeight() - 195, 80, 50);
+    dToggleButton.setBounds(getWidth() - 420, getHeight() - 195, 80, 50);
 
     
 }

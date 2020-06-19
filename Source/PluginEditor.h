@@ -73,8 +73,8 @@ public:
     void paint (Graphics&) override;
     void resized() override;
     
-    void buttonClicked (Button* button) override;
-    void sliderValueChanged (Slider *slider) override;
+    void buttonClicked (Button* button);
+    void sliderValueChanged (Slider *slider);
 
 
 
@@ -108,8 +108,7 @@ private:
     Slider mMixSlider;
     Slider mSatSlider;
     
-    Slider dMixSlider;
-    Slider dGainSlider;
+  
     
     Label mInputLabel;
     Label mThresholdLabel;
@@ -137,8 +136,7 @@ private:
     
     
     //distortion attachments
-    std::unique_ptr<AudioProcessorValueTreeState::SliderAttachment> dGainAttachment;
-    std::unique_ptr<AudioProcessorValueTreeState::SliderAttachment> dMixAttachment;
+
     std::unique_ptr<AudioProcessorValueTreeState::ButtonAttachment> dToggleAttachment;
 
 
