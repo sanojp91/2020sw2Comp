@@ -108,7 +108,6 @@ private:
     Slider mMixSlider;
     Slider mSatSlider;
     
-    Slider dGainSlider;
   
     
     Label mInputLabel;

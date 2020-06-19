@@ -83,12 +83,6 @@ _2020sw2compAudioProcessor::_2020sw2compAudioProcessor()
                                     std::make_unique<AudioParameterBool>("bypass",
                                                                          "Bypass",
                                                                          false),
-                                    std::make_unique<AudioParameterFloat>( // if a float it needs to be atomic<float> if int <int>
-                                                                          "dGain",   //parameter ID
-                                                                          "Gain",    // parameter name
-                                                                          -96.0f,    //  min value
-                                                                          12.0f, // max value
-                                                                          -20.0f),       //  default value
                                     std::make_unique<AudioParameterBool>( "dToggle",   //parameter ID
                                                                           "Toggle",    // parameter name
                                                                            false),
@@ -116,10 +110,9 @@ _2020sw2compAudioProcessor::_2020sw2compAudioProcessor()
     mMixParameter = parameters.getRawParameterValue("mix");
     mOutputGainParameter = parameters.getRawParameterValue("outputGain");
     
-    dGainParameter = parameters.getRawParameterValue("dGain");
     dToggleParameter = parameters.getRawParameterValue("dToggle");
     
-    preGain.setGainDecibels(*dGainParameter); // pre gain float attached to gain parameter
+  //  preGain.setGainDecibels(*dGainParameter); // pre gain float attached to gain parameter
 
     
     mPrePostParameter = parameters.getRawParameterValue("prePostSat");
@@ -215,15 +208,14 @@ void _2020sw2compAudioProcessor::prepareToPlay (double sampleRate, int samplesPe
     
 
     
-    preGain.prepare(spec); // prepare DSP
+  //  preGain.prepare(spec); // prepare DSP
     waveShaper1.prepare(spec);
     waveShaper2.prepare(spec);
 
-    preGain.reset(); // reset DSP
-    waveShaper1.reset();
-    waveShaper2.reset();
+  //  preGain.reset(); // reset DSP
+   
     
-    preGain.setGainDecibels(*dGainParameter); //re reference the gain decibel from gain parameter
+ //   preGain.setGainDecibels(*dGainParameter); //re reference the gain decibel from gain parameter
     
 }
 
@@ -231,6 +223,8 @@ void _2020sw2compAudioProcessor::releaseResources()
 {
     // When playback stops, you can use this as an opportunity to free up any
     // spare memory, etc.
+    waveShaper1.reset();
+       waveShaper2.reset();
 }
 
 #ifndef JucePlugin_PreferredChannelConfigurations
@@ -294,15 +288,19 @@ for (auto sample = 0; sample < buffer.getNumSamples(); ++sample)
                 auto* mInBuffer = buffer.getReadPointer(channel); //maybe not necessary?
                 auto* mOutBuffer = buffer.getWritePointer(channel);
             
-                preGain.setGainDecibels(*dGainParameter); // re reference the gain decibel from gain parameter
+              //  preGain.setGainDecibels(*dGainParameter); // re reference the gain decibel from gain parameter
                 auto   dryMix = preGain.processSample(mInBuffer[sample]); // drymix is equal to pregains relation to the dry signal
                 float  wetMix;
                 float outputLevel = *mSatParameter; // get outputLevel from mixparameters position
                 float inputLevel = 1.0 - outputLevel; // input level is equal to 1 - output level
                 
+            //  wetMix = waveShaper1.processSample(mInBuffer[sample]);
+               
+               
             if (*dToggleParameter == true) // if button is true complete code:
                             {
                                   wetMix = waveShaper1.processSample(mInBuffer[sample]);
+                                DBG('here');
                             } else // or else run the second waveshaper function
                             {
                                   wetMix = waveShaper2.processSample(mInBuffer[sample]);
@@ -325,14 +323,14 @@ for (auto sample = 0; sample < buffer.getNumSamples(); ++sample)
                   {
                                 
                     //Calculate the compressed samples with some initial values passed into the compressSample function
-                      mOutBuffer[sample] = *mInputGainParameter * *mMixParameter * mComp->compressSample(mOutBuffer[sample], *mThresholdParameter, *mRatioParameter, mAttackTime, mReleaseTime, *mKneeParameter) * *mOutputGainParameter + mOutBuffer[sample] * (1 - *mMixParameter) + dryMix * inputLevel + wetMix * outputLevel;
+                      mOutBuffer[sample] = *mInputGainParameter * *mMixParameter * mComp->compressSample(mOutBuffer[sample], *mThresholdParameter, *mRatioParameter, mAttackTime, mReleaseTime, *mKneeParameter) + dryMix * inputLevel + wetMix * outputLevel * *mOutputGainParameter  + mOutBuffer[sample] * (1 - *mMixParameter);
                                   
                     }
                               
                         else //in this loop the saturation/distortion is after the compression
                         {
 
-                            mOutBuffer[sample] = *mInputGainParameter * *mMixParameter * mComp->compressSample(mOutBuffer[sample], *mThresholdParameter, *mRatioParameter, mAttackTime, mReleaseTime, *mKneeParameter) * *mOutputGainParameter + mOutBuffer[sample] * (1 - *mMixParameter) + dryMix * inputLevel  + wetMix * outputLevel;
+                            mOutBuffer[sample] = *mInputGainParameter * *mMixParameter * mComp->compressSample(mOutBuffer[sample], *mThresholdParameter, *mRatioParameter, mAttackTime, mReleaseTime, *mKneeParameter) + dryMix * inputLevel + wetMix * outputLevel * *mOutputGainParameter + mOutBuffer[sample] * (1 - *mMixParameter);
                         }
                 
                 
