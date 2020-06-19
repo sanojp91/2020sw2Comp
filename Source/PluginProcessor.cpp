@@ -294,17 +294,17 @@ for (auto sample = 0; sample < buffer.getNumSamples(); ++sample)
                 float outputLevel = *mSatParameter; // get outputLevel from mixparameters position
                 float inputLevel = 1.0 - outputLevel; // input level is equal to 1 - output level
                 
-            //  wetMix = waveShaper1.processSample(mInBuffer[sample]);
+             wetMix = waveShaper1.processSample(mInBuffer[sample]);
                
                
             if (*dToggleParameter == true) // if button is true complete code:
                             {
                                   wetMix = waveShaper1.processSample(mInBuffer[sample]);
-                                DBG('here');
                             } else // or else run the second waveshaper function
                             {
                                   wetMix = waveShaper2.processSample(mInBuffer[sample]);
                             }
+           
 
             //get a reference from Compressor class for the current channel
             Compressor* mComp = &mAllCompressors.getReference(channel);
