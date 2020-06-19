@@ -73,6 +73,11 @@ public:
     //==============================================================================
     void paint (Graphics&) override;
     void resized() override;
+    
+    void buttonClicked (Button* button);
+    void sliderValueChanged (Slider *slider);
+
+
 
 private:
     
@@ -87,6 +92,8 @@ private:
     //declaring togglebuttons and labels for them
     ToggleButton mBypassButton;
     ToggleButton mPrePostSatButton;
+   
+    ToggleButton dToggleButton;
     
     Label mBypassLabel;
     Label mPrePostLabel;
@@ -101,6 +108,9 @@ private:
     Slider mOutPutSlider;
     Slider mMixSlider;
     Slider mSatSlider;
+    
+    Slider dGainSlider;
+  
     
     Label mInputLabel;
     Label mThresholdLabel;
@@ -125,6 +135,11 @@ private:
     
     std::unique_ptr<AudioProcessorValueTreeState::ButtonAttachment> mPrePostAttachment;
     std::unique_ptr<AudioProcessorValueTreeState::ButtonAttachment> mBypassAttachment;
+    
+    
+    //distortion attachments
+    std::unique_ptr<AudioProcessorValueTreeState::SliderAttachment> dGainAttachment;
+    std::unique_ptr<AudioProcessorValueTreeState::ButtonAttachment> dToggleAttachment;
 
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (_2020sw2compAudioProcessorEditor)
