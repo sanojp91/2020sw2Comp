@@ -108,6 +108,7 @@ private:
     Slider mMixSlider;
     Slider mSatSlider;
     
+    Slider dGainSlider;
   
     
     Label mInputLabel;
@@ -136,7 +137,7 @@ private:
     
     
     //distortion attachments
-
+    std::unique_ptr<AudioProcessorValueTreeState::SliderAttachment> dGainAttachment;
     std::unique_ptr<AudioProcessorValueTreeState::ButtonAttachment> dToggleAttachment;
 
 

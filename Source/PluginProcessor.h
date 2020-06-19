@@ -85,7 +85,6 @@ private:
     
     //waveshaper declerations button and sliders
     std::atomic<float>* dGainParameter = nullptr;
-    std::atomic<float>* dMixParameter = nullptr;
     std::atomic<float>* dToggleParameter = nullptr;
     
     
