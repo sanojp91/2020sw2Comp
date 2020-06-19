@@ -86,7 +86,6 @@ private:
     std::atomic<float>* mPrePostParameter = nullptr;
     
     //waveshaper declerations button and sliders
-    std::atomic<float>* dGainParameter = nullptr;
     std::atomic<float>* dToggleParameter = nullptr;
     
     

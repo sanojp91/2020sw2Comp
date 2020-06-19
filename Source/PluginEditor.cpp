@@ -162,14 +162,6 @@ _2020sw2compAudioProcessorEditor::_2020sw2compAudioProcessorEditor (_2020sw2comp
     mBypassAttachment.reset( new AudioProcessorValueTreeState::ButtonAttachment(valueTreeState, "bypass", mBypassButton));
     addAndMakeVisible(mBypassButton);
     
-    dGainSlider.setSliderStyle(Slider::SliderStyle::RotaryVerticalDrag);
-    dGainSlider.setTextBoxStyle(Slider::TextEntryBoxPosition::TextBoxBelow, true, 50, 15);
-    dGainSlider.setTextValueSuffix("Sat Gain");
-      // gainSlider.addListener(this);
-    addAndMakeVisible(dGainSlider);
-       
-    dGainAttachment.reset(new AudioProcessorValueTreeState::SliderAttachment(valueTreeState, "gain", dGainSlider));
-    
      dToggleButton.setClickingTogglesState(true);
      dToggleButton.setButtonText("Saturation Type");
     // toggleButton.addListener(this);
@@ -195,7 +187,6 @@ _2020sw2compAudioProcessorEditor::~_2020sw2compAudioProcessorEditor()
     mMixSlider.setLookAndFeel(nullptr);
     mSatSlider.setLookAndFeel(nullptr);
     
-    dGainSlider.setLookAndFeel(nullptr);
 
 }
 
@@ -242,7 +233,6 @@ void _2020sw2compAudioProcessorEditor::resized()
     
     //positioning for the mix slider, needs to be tweaked
     mMixSlider.setBounds(getWidth() - 100, getHeight() - 220, 100, 100);
-    dGainSlider.setBounds(getWidth() - 190, getHeight() - 220, 100, 100);
     mKneeSlider.setBounds(getWidth() / 2 - 50, getHeight() - 180, 100, 50);
     
     //positioning for the buttons, also needs to be tweaked
