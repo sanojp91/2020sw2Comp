@@ -166,7 +166,7 @@ _2020sw2compAudioProcessorEditor::_2020sw2compAudioProcessorEditor (_2020sw2comp
      dToggleButton.setButtonText("Saturation Type");
     // toggleButton.addListener(this);
      dToggleButton.setState(Button::ButtonState::buttonNormal);
-     dToggleAttachment.reset(new AudioProcessorValueTreeState::ButtonAttachment(valueTreeState, "toggle", dToggleButton));
+     dToggleAttachment.reset(new AudioProcessorValueTreeState::ButtonAttachment(valueTreeState, "dToggle", dToggleButton));
      addAndMakeVisible(dToggleButton);
 
     
