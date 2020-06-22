@@ -22,7 +22,7 @@ as well as a Mix knob that lets the user decide how much of the affected signal 
 
 ### Resources
 #### Compressor
-Author Alex Rycroft
+Author Alex Rycroft 
 
 [Audio Ordeal: Alex Rycroft] (https://audioordeal.co.uk/how-to-build-a-vst-compressor/)
 
