@@ -62,7 +62,7 @@ _2020sw2compAudioProcessor::_2020sw2compAudioProcessor()
                                     std::make_unique<AudioParameterFloat>("saturation",
                                                                           "Saturation",
                                                 NormalisableRange<float> (0.0f,
-                                                                          1.0f,
+                                                                          10.0f,
                                                                           0.01f),
                                                                           0.0f),
                                     std::make_unique<AudioParameterFloat>("mix",
@@ -97,7 +97,7 @@ _2020sw2compAudioProcessor::_2020sw2compAudioProcessor()
                    return jlimit((float)-0.1, (float) 0.1, x); // lambda function creating the distortion
            };
            waveShaper2.functionToUse = [] (float z) {
-                   return std::tanh (z); // second lambda function for second distortion
+                   return std::tanh (z * 3); // second lambda function for second distortion
              };// [4]
     
     mInputGainParameter = parameters.getRawParameterValue("inputGain");
@@ -263,8 +263,8 @@ void _2020sw2compAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiB
     // This is here to avoid people getting screaming feedback
     // when they first compile a plugin, but obviously you don't need to keep
     // this code if your algorithm always overwrites all the output channels.
-    for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
-        buffer.clear (i, 0, buffer.getNumSamples());
+   for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
+    buffer.clear (i, 0, buffer.getNumSamples());
 
     //maths on the attack and release times to convert from seconds to milliseconds and from a linear to time scale.
     float mAttackTime = 1 - std::pow(MathConstants<float>::euler, ((1 / getSampleRate()) * -2.2f) / (*mAttackParameter / 1000.0f));
@@ -276,15 +276,7 @@ for (auto sample = 0; sample < buffer.getNumSamples(); ++sample)
       {
           for (int channel = 0; channel < totalNumInputChannels; ++channel)
            {
-              
-               
- 
-        
 
-       
-            //create an in- and outbuffer
-        
-            
                 auto* mInBuffer = buffer.getReadPointer(channel); //maybe not necessary?
                 auto* mOutBuffer = buffer.getWritePointer(channel);
             
@@ -294,21 +286,6 @@ for (auto sample = 0; sample < buffer.getNumSamples(); ++sample)
                 float outputLevel = *mSatParameter; // get outputLevel from mixparameters position
                 float inputLevel = 1.0 - outputLevel; // input level is equal to 1 - output level
                 
-          //   wetMix = waveShaper1.processSample(mInBuffer[sample]);
-               
-               
-            if (*dToggleParameter == true) // if button is true complete code:
-                            {
-                                  wetMix = waveShaper1.processSample(mInBuffer[sample]);
-                                 mOutBuffer[sample]  = dryMix * inputLevel + wetMix * outputLevel;
-                            } else // or else run the second waveshaper function
-                            {
-                                  wetMix = waveShaper2.processSample(mInBuffer[sample]);
-                                  mOutBuffer[sample]  = dryMix * inputLevel + wetMix * outputLevel;
-
-                            }
-           
-
             //get a reference from Compressor class for the current channel
             Compressor* mComp = &mAllCompressors.getReference(channel);
             
@@ -321,7 +298,16 @@ for (auto sample = 0; sample < buffer.getNumSamples(); ++sample)
         
             else //if bypass is disabled (false)
             {
-                
+                if (*dToggleParameter == true) // if button is true complete code:
+                              {
+                               wetMix = waveShaper1.processSample(mInBuffer[sample]);
+                               mOutBuffer[sample]  = dryMix * inputLevel + wetMix * (outputLevel * 5);
+                              } else // or else run the second waveshaper function
+                                  {
+                                  wetMix = waveShaper2.processSample(mInBuffer[sample]);
+                                  mOutBuffer[sample]  = dryMix * inputLevel + wetMix * outputLevel;
+                              }
+                    
                   if (*mPrePostParameter) //if prepost it true, in this loop the saturation/distortion is before compression
                   {
                                 
@@ -335,8 +321,7 @@ for (auto sample = 0; sample < buffer.getNumSamples(); ++sample)
 
                             mOutBuffer[sample] = *mInputGainParameter * *mMixParameter * mComp->compressSample(mOutBuffer[sample], *mThresholdParameter, *mRatioParameter, mAttackTime, mReleaseTime, *mKneeParameter) * *mOutputGainParameter + mOutBuffer[sample] * (1 - *mMixParameter);
                         }
-                
-                
+                   
             }
        
 
