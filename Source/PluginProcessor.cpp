@@ -26,9 +26,9 @@ _2020sw2compAudioProcessor::_2020sw2compAudioProcessor()
                                     std::make_unique<AudioParameterFloat>("inputGain", //ID
                                                                           "Input Gain", //Name
                                                 NormalisableRange<float> (0.f, //Minimum
-                                                                          10.f, //Maximum
+                                                                          5.f, //Maximum
                                                                           0.01f), //change in incraments
-                                                                          1.f), //default value
+                                                                          2.75f), //default value
                                     std::make_unique<AudioParameterFloat>("threshold",
                                                                           "Threshold",
                                                 NormalisableRange<float> (-60.f,
@@ -62,7 +62,7 @@ _2020sw2compAudioProcessor::_2020sw2compAudioProcessor()
                                     std::make_unique<AudioParameterFloat>("saturation",
                                                                           "Saturation",
                                                 NormalisableRange<float> (0.0f,
-                                                                          10.0f,
+                                                                          1.0f,
                                                                           0.01f),
                                                                           0.0f),
                                     std::make_unique<AudioParameterFloat>("mix",
@@ -74,7 +74,7 @@ _2020sw2compAudioProcessor::_2020sw2compAudioProcessor()
                                     std::make_unique<AudioParameterFloat>("outputGain",
                                                                           "Output Gain",
                                                 NormalisableRange<float> (0.0f,
-                                                                          10.0f,
+                                                                          5.0f,
                                                                           0.01f),
                                                                           1.0f),
                                     std::make_unique<AudioParameterBool>("prePostSat", //ID
@@ -289,9 +289,8 @@ for (auto sample = 0; sample < buffer.getNumSamples(); ++sample)
             //get a reference from Compressor class for the current channel
             Compressor* mComp = &mAllCompressors.getReference(channel);
             
-            if (*mBypassParameter) //if bypass is enabled (true)
+               if (*mBypassParameter == true) //if bypass is enabled (true)
             {
-             
              // do nothing to the signal
                 
             }
@@ -301,26 +300,26 @@ for (auto sample = 0; sample < buffer.getNumSamples(); ++sample)
                 if (*dToggleParameter == true) // if button is true complete code:
                               {
                                wetMix = waveShaper1.processSample(mInBuffer[sample]);
-                               mOutBuffer[sample]  = dryMix * inputLevel + wetMix * (outputLevel * 5);
+                               mOutBuffer[sample]  = dryMix * inputLevel + wetMix * (outputLevel * 3);
                               } else // or else run the second waveshaper function
                                   {
                                   wetMix = waveShaper2.processSample(mInBuffer[sample]);
-                                  mOutBuffer[sample]  = dryMix * inputLevel + wetMix * outputLevel;
+                                      mOutBuffer[sample]  = dryMix * inputLevel + wetMix * (outputLevel * 1.5);
                               }
                     
-                  if (*mPrePostParameter) //if prepost it true, in this loop the saturation/distortion is before compression
+                 if (*mPrePostParameter == true) //if prepost it true, in this loop the saturation/distortion is before compression
                   {
-                                
                     //Calculate the compressed samples with some initial values passed into the compressSample function
-                      mOutBuffer[sample] = *mInputGainParameter * *mMixParameter * mComp->compressSample(mOutBuffer[sample], *mThresholdParameter, *mRatioParameter, mAttackTime, mReleaseTime, *mKneeParameter) * *mOutputGainParameter  + mOutBuffer[sample] * (1 - *mMixParameter);
+                      mOutBuffer[sample] = *mInputGainParameter * *mMixParameter * mComp->compressSample(mOutBuffer[sample], *mThresholdParameter, *mRatioParameter, mAttackTime, mReleaseTime, *mKneeParameter) * (*mOutputGainParameter / 3)  + mOutBuffer[sample] * (1 - *mMixParameter);
                                   
                     }
                               
-                        else //in this loop the saturation/distortion is after the compression
+                       else //in this loop the saturation/distortion is after the compression
                         {
-
-                            mOutBuffer[sample] = *mInputGainParameter * *mMixParameter * mComp->compressSample(mOutBuffer[sample], *mThresholdParameter, *mRatioParameter, mAttackTime, mReleaseTime, *mKneeParameter) * *mOutputGainParameter + mOutBuffer[sample] * (1 - *mMixParameter);
+                            mOutBuffer[sample] = *mInputGainParameter * *mMixParameter * mComp->compressSample(mOutBuffer[sample], *mThresholdParameter, *mRatioParameter, mAttackTime, mReleaseTime, *mKneeParameter) * (*mOutputGainParameter / 3) + mOutBuffer[sample] * (1 - *mMixParameter);
                         }
+               
+                    
                    
             }
        
