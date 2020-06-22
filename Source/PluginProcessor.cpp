@@ -28,9 +28,9 @@ _2020sw2compAudioProcessor::_2020sw2compAudioProcessor()
                                     std::make_unique<AudioParameterFloat>("inputGain", //ID
                                                                           "Input Gain", //Name
                                                 NormalisableRange<float> (0.f, //Minimum
-                                                                          10.f, //Maximum
+                                                                          5.f, //Maximum
                                                                           0.01f), //change in incraments
-                                                                          1.f), //default value
+                                                                          2.75f), //default value
                                     std::make_unique<AudioParameterFloat>("threshold",
                                                                           "Threshold",
                                                 NormalisableRange<float> (-60.f,
@@ -76,7 +76,7 @@ _2020sw2compAudioProcessor::_2020sw2compAudioProcessor()
                                     std::make_unique<AudioParameterFloat>("outputGain",
                                                                           "Output Gain",
                                                 NormalisableRange<float> (0.0f,
-                                                                          10.0f,
+                                                                          5.0f,
                                                                           0.01f),
                                                                           1.0f),
                                     std::make_unique<AudioParameterBool>("prePostSat", //ID
@@ -99,7 +99,7 @@ _2020sw2compAudioProcessor::_2020sw2compAudioProcessor()
                    return jlimit((float)-0.1, (float) 0.1, x); // lambda function creating the distortion
            };
            waveShaper2.functionToUse = [] (float z) {
-                   return std::tanh (z); // second lambda function for second distortion
+                   return std::tanh (z * 3); // second lambda function for second distortion
              };// [4]
     
     mInputGainParameter = parameters.getRawParameterValue("inputGain");
@@ -265,8 +265,8 @@ void _2020sw2compAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiB
     // This is here to avoid people getting screaming feedback
     // when they first compile a plugin, but obviously you don't need to keep
     // this code if your algorithm always overwrites all the output channels.
-    for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
-        buffer.clear (i, 0, buffer.getNumSamples());
+   for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
+    buffer.clear (i, 0, buffer.getNumSamples());
 
     //maths on the attack and release times to convert from seconds to milliseconds and from a linear to time scale.
     float mAttackTime = 1 - std::pow(MathConstants<float>::euler, ((1 / getSampleRate()) * -2.2f) / (*mAttackParameter / 1000.0f));
@@ -278,15 +278,7 @@ for (auto sample = 0; sample < buffer.getNumSamples(); ++sample)
       {
           for (int channel = 0; channel < totalNumInputChannels; ++channel)
            {
-              
-               
- 
-        
 
-       
-            //create an in- and outbuffer
-        
-            
                 auto* mInBuffer = buffer.getReadPointer(channel); //maybe not necessary?
                 auto* mOutBuffer = buffer.getWritePointer(channel);
             
@@ -296,49 +288,41 @@ for (auto sample = 0; sample < buffer.getNumSamples(); ++sample)
                 float outputLevel = *mSatParameter; // get outputLevel from mixparameters position
                 float inputLevel = 1.0 - outputLevel; // input level is equal to 1 - output level
                 
-          //   wetMix = waveShaper1.processSample(mInBuffer[sample]);
-               
-               
-            if (*dToggleParameter == true) // if button is true complete code:
-                            {
-                                  wetMix = waveShaper1.processSample(mInBuffer[sample]);
-                                 mOutBuffer[sample]  = dryMix * inputLevel + wetMix * outputLevel;
-                            } else // or else run the second waveshaper function
-                            {
-                                  wetMix = waveShaper2.processSample(mInBuffer[sample]);
-                                  mOutBuffer[sample]  = dryMix * inputLevel + wetMix * outputLevel;
-
-                            }
-           
-
             //get a reference from Compressor class for the current channel
             Compressor* mComp = &mAllCompressors.getReference(channel);
             
-            if (*mBypassParameter) //if bypass is enabled (true)
+               if (*mBypassParameter == true) //if bypass is enabled (true)
             {
-             
              // do nothing to the signal
                 
             }
         
             else //if bypass is disabled (false)
             {
-                
-                  if (*mPrePostParameter) //if prepost it true, in this loop the saturation/distortion is before compression
+                if (*dToggleParameter == true) // if button is true complete code:
+                              {
+                               wetMix = waveShaper1.processSample(mInBuffer[sample]);
+                               mOutBuffer[sample]  = dryMix * inputLevel + wetMix * (outputLevel * 3);
+                              } else // or else run the second waveshaper function
+                                  {
+                                  wetMix = waveShaper2.processSample(mInBuffer[sample]);
+                                      mOutBuffer[sample]  = dryMix * inputLevel + wetMix * (outputLevel * 1.5);
+                              }
+                    
+                 if (*mPrePostParameter == true) //if prepost it true, in this loop the saturation/distortion is before compression
                   {
-                                
                     //Calculate the compressed samples with some initial values passed into the compressSample function
-                      mOutBuffer[sample] = *mInputGainParameter * *mMixParameter * mComp->compressSample(mOutBuffer[sample], *mThresholdParameter, *mRatioParameter, mAttackTime, mReleaseTime, *mKneeParameter) * *mOutputGainParameter  + mOutBuffer[sample] * (1 - *mMixParameter);
+                      mOutBuffer[sample] = *mInputGainParameter * *mMixParameter * mComp->compressSample(mOutBuffer[sample], *mThresholdParameter, *mRatioParameter, mAttackTime, mReleaseTime, *mKneeParameter) * (*mOutputGainParameter / 3)  + mOutBuffer[sample] * (1 - *mMixParameter);
                                   
                     }
                               
-                        else //in this loop the saturation/distortion is after the compression
+                       else //in this loop the saturation/distortion is after the compression
                         {
-
-                            mOutBuffer[sample] = *mInputGainParameter * *mMixParameter * mComp->compressSample(mOutBuffer[sample], *mThresholdParameter, *mRatioParameter, mAttackTime, mReleaseTime, *mKneeParameter) * *mOutputGainParameter + mOutBuffer[sample] * (1 - *mMixParameter);
+                            mOutBuffer[sample] = *mInputGainParameter * *mMixParameter * mComp->compressSample(mOutBuffer[sample], *mThresholdParameter, *mRatioParameter, mAttackTime, mReleaseTime, *mKneeParameter) * (*mOutputGainParameter / 3) + mOutBuffer[sample] * (1 - *mMixParameter);
                         }
-                
-                
+               
+                    
+                   
             }
        
 
